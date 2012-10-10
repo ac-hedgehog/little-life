@@ -33,6 +33,15 @@ class Colony < Template
   end
 end
 
+class ColonyLayer < Template
+  
+  private
+  
+  def new_cell
+    ColonyCell.new
+  end
+end
+
 class Field < Template
   
   private

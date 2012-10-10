@@ -1,35 +1,39 @@
 class Cell
-  attr_accessor :state
+  attr_accessor :kind
   
-  CELL_STATE = [:dead, :alive]
+  CELL_KINDS = [:dead, :alive]
   
   def initialize(args = { })
-    self.state = args[:state]
+    self.kind = args[:kind]
     self
   end
   
   def alive
-    @state = :alive
+    @kind = :alive
     self
   end
   
   def kill
-    @state = :dead
+    @kind = :dead
     self
   end
   
   def is_alive?
-    @state == :alive
+    @kind == :alive
   end
   
   def is_dead?
-    @state == :dead
+    @kind == :dead
+  end
+  
+  def inspect
+    "#<#{@kind.capitalize} #{self.class.name}>"
   end
   
   private
   
-  def state=(state)
-    @state = state && CELL_STATE.include?(state) ? state : CELL_STATE.first
+  def kind=(kind)
+    @kind = kind && CELL_KINDS.include?(kind) ? kind : CELL_KINDS.first
   end
 end
 
@@ -45,23 +49,19 @@ class ColonyCell < Cell
   end
   
   def alive(a, b)
-    @state = :alive
+    @kind = :alive
     self.survival = a, b
     self
   end
   
   def kill
-    @state = :dead
+    @kind = :dead
     clear_genome
     self
   end
   
   def genome
     { survival: [@a, @b] }
-  end
-  
-  def inspect
-    "#<#{@state.capitalize} #{self.class.name}>"
   end
   
   private
@@ -78,15 +78,15 @@ class ColonyCell < Cell
 end
 
 class FieldCell < ColonyCell
-  CELL_STATE = [:dead, :alive, :checkpoint]
+  CELL_KINDS = [:dead, :alive, :checkpoint]
   
   def is_checkpoint
-    @state = :checkpoint
+    @kind = :checkpoint
     clear_genome
     self
   end
   
   def is_checkpoint?
-    @state == :checkpoint
+    @kind == :checkpoint
   end
 end
