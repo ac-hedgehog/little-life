@@ -33,14 +33,14 @@ class Cell
   private
   
   def kind=(kind)
-    @kind = kind && CELL_KINDS.include?(kind) ? kind : CELL_KINDS.first
+    @kind = CELL_KINDS.include?(kind) ? kind : CELL_KINDS.first
   end
 end
 
 class ColonyCell < Cell
   attr_accessor :a, :b
   
-  RANGE_OF_SURVIVAL = (1..7).to_a
+  RANGE_OF_SURVIVAL = (1..7)
   
   def initialize(args = { })
     super(args)
@@ -72,8 +72,8 @@ class ColonyCell < Cell
   
   def survival=(*args)
     a, b = args.first
-    @a = a && RANGE_OF_SURVIVAL.include?(a) ? a : RANGE_OF_SURVIVAL.first
-    @b = b && RANGE_OF_SURVIVAL.include?(b) && a <= b ? b : RANGE_OF_SURVIVAL.last
+    @a = RANGE_OF_SURVIVAL.include?(a) ? a : RANGE_OF_SURVIVAL.first
+    @b = RANGE_OF_SURVIVAL.include?(b) && a <= b ? b : RANGE_OF_SURVIVAL.last
   end
 end
 
