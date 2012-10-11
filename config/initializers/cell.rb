@@ -1,9 +1,10 @@
 class Cell
-  attr_accessor :kind
+  attr_accessor :name, :kind
   
   CELL_KINDS = [:dead, :alive]
   
-  def initialize(args = { })
+  def initialize(name, args = { })
+    @name = "#{name} Junior"
     self.kind = args[:kind]
     self
   end
@@ -27,7 +28,7 @@ class Cell
   end
   
   def inspect
-    "#<#{@kind.capitalize} #{self.class.name}>"
+    "#<#{self.class.name} #{@name} is #{@kind}>"
   end
   
   private
@@ -42,8 +43,8 @@ class ColonyCell < Cell
   
   RANGE_OF_SURVIVAL = (1..7)
   
-  def initialize(args = { })
-    super(args)
+  def initialize(name, args = { })
+    super(name, args)
     self.survival = args[:a], args[:b] if self.is_alive?
     self
   end

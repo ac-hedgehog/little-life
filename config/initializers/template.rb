@@ -1,20 +1,21 @@
 class Template
-  attr_accessor :rows, :cols, :cells
+  attr_accessor :name, :rows, :cols, :cells
   
   SIZE_RANGE = (10..100)
   
-  def initialize(rows = SIZE_RANGE.last, cols = SIZE_RANGE.last)
+  def initialize(name, rows = SIZE_RANGE.last, cols = SIZE_RANGE.last)
+    set_name name
     @rows, @cols = rows, cols
-    new_cells
+    set_cells
     self
   end
   
   def inspect
-    "#<#{self.class.name}: #{@rows}x#{@cols}>"
+    "#<#{self.class.name} #{@name}: #{@rows}x#{@cols}>"
   end
   
   def to_s
-    @cells.map { |row|
+    "#{self.class.name} #{@name}:\n" + @cells.map { |row|
       row.map { |cell|
         cell.is_alive? ? "." : " "
       }.join
@@ -23,12 +24,24 @@ class Template
   
   private
   
-  def new_cell
-    Cell.new
+  def set_cell
+    Cell.new @name
   end
   
-  def new_cells
-    @cells = Array.new(@rows).map { Array.new(@cols).map { new_cell } }
+  def set_cells
+    @cells = Array.new(@rows).map { Array.new(@cols).map { set_cell } }
+  end
+  
+  def set_name(name)
+    raise Exception.new 'Bad name' unless name.is_a?(String)
+    
+    words_count = 2
+    valid_symbols = ('A'..'z').to_a.push(' ')
+    
+    @name = name.split('')
+                .map{ |l| valid_symbols.include?(l) ? l : nil }
+                .compact.join.split(' ').first(words_count)
+                .map{ |n| n.capitalize }.join(' ')
   end
 end
 
@@ -37,7 +50,8 @@ class Colony < Template
   
   DEFAULT_PROBABILITY = 0.3
   
-  def initialize(args = { })
+  def initialize(name, args = { })
+    set_name name
     set_size args[:rows], args[:cols]
     set_probabilities args[:probabilities]
     set_cells
@@ -45,7 +59,7 @@ class Colony < Template
   end
   
   def to_s
-    @cells.map { |row|
+    "#{self.class.name} #{@name}:\n" + @cells.map { |row|
       row.map { |cell|
         cell.is_alive? ? "#{cell.a}#{cell.b}" : "  "
       }.join(" ")
@@ -63,7 +77,7 @@ class Colony < Template
     alive = Random.rand(1.0) < @probabilities[i][j] ? :alive : :dead
     a = alive == :alive ? rand(ColonyCell::RANGE_OF_SURVIVAL) : nil
     b = alive == :alive ? rand(a..ColonyCell::RANGE_OF_SURVIVAL.last) : nil
-    ColonyCell.new kind: alive, a: a, b: b
+    ColonyCell.new @name, kind: alive, a: a, b: b
   end
   
   def set_cells
@@ -85,20 +99,11 @@ class Colony < Template
   end
 end
 
-class ColonyLayer < Template
-  
-  private
-  
-  def new_cell
-    ColonyCell.new
-  end
-end
-
 class Field < Template
   
   private
   
   def new_cell
-    FieldCell.new
+    FieldCell.new @name
   end
 end
