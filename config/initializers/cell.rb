@@ -1,7 +1,7 @@
 class Cell
   attr_accessor :name, :kind
   
-  CELL_KINDS = [:dead, :alive]
+  @@cell_kinds = [:dead, :alive]
   
   def initialize(name, args = { })
     @name = "#{name} Junior"
@@ -34,7 +34,7 @@ class Cell
   private
   
   def kind=(kind)
-    @kind = CELL_KINDS.include?(kind) ? kind : CELL_KINDS.first
+    @kind = @@cell_kinds.include?(kind) ? kind : @@cell_kinds.first
   end
 end
 
@@ -79,7 +79,16 @@ class ColonyCell < Cell
 end
 
 class FieldCell < ColonyCell
-  CELL_KINDS = [:dead, :alive, :checkpoint]
+  attr_accessor :checkpoint_type
+  
+  @@cell_kinds = [:dead, :alive, :checkpoint]
+  CHECKPOINT_TYPES = [:finish]
+  
+  def initialize(name, args = { })
+    super(name, args)
+    self.checkpoint_type = args[:checkpoint_type]
+    self
+  end
   
   def is_checkpoint
     @kind = :checkpoint
@@ -89,5 +98,13 @@ class FieldCell < ColonyCell
   
   def is_checkpoint?
     @kind == :checkpoint
+  end
+  
+  private
+  
+  def checkpoint_type=(checkpoint_type)
+    @checkpoint_type = if self.is_checkpoint?
+      CHECKPOINT_TYPES.include?(checkpoint_type)? checkpoint_type : CHECKPOINT_TYPES.first
+    end
   end
 end

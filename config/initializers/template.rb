@@ -101,9 +101,43 @@ end
 
 class Field < Template
   
+  def initialize(name, rows = SIZE_RANGE.last, cols = SIZE_RANGE.last, args = { })
+    set_name name
+    @rows, @cols = rows, cols
+    set_cells args[:checkpoints]
+    set_colonies args[:colonies]
+    self
+  end
+  
   private
   
-  def new_cell
+  def dead_cell
     FieldCell.new @name
+  end
+  
+  def checkpoint_cell(checkpoint_type)
+    FieldCell.new @name, kind: :checkpoint, checkpoint_type: checkpoint_type
+  end
+  
+  def set_checkpoints(checkpoints)
+    raise Exception.new 'Bad size' unless checkpoints.size == @rows &&
+                                          checkpoints.first.size == @cols
+    @cells = checkpoints.map { |row|
+      row.map { |checkpoint|
+        checkpoint ? checkpoint_cell(checkpoint.to_sym) : dead_cell
+      }
+    }
+  end
+  
+  def set_cells(checkpoints = nil)
+    if checkpoints
+      set_checkpoints(checkpoints)
+    else
+      @cells = Array.new(@rows).map { Array.new(@cols).map { dead_cell } }
+    end
+  end
+  
+  def set_colonies(colonies)
+    
   end
 end
