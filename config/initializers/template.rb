@@ -113,7 +113,7 @@ class Field < Template
   end
   
   def next_life_cycle
-    self.to_json
+    Field.new("Test Field", 20, 20, colonies: [{ colony: Colony.new("John") }]).cells.to_json
   end
   
   def get_life(args = { })
