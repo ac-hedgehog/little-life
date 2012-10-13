@@ -29,12 +29,13 @@ get_new_life = () ->
             $.life_cycles = life_cycles_to_object(life_cycles)
             $.t = 0
             draw_field_table()
+            clearInterval($.interval)
 
 start_new_life = () ->
     if $.life_cycles && $.life_cycles[$.t]
         draw_field_table()
         $.t += 1
-        setTimeout(start_new_life, 500)
 
 $("#get-new-colony").live "click", get_new_life
-$("#start-new-life").live "click", start_new_life
+$("#start-new-life").live "click", () ->
+    $.interval = setInterval(start_new_life, 500)

@@ -61,6 +61,10 @@ class ColonyCell < Cell
     self
   end
   
+  def survival_range
+    (@a..@b)
+  end
+  
   def genome
     { survival: [@a, @b] }
   end

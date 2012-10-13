@@ -112,12 +112,8 @@ class Field < Template
     self
   end
   
-  def next_life_cycle
-    Field.new("Test Field", 20, 20, colonies: [{ colony: Colony.new("John") }]).cells.to_json
-  end
-  
   def get_life(args = { })
-    life_cycles = []
+    life_cycles = [@cells.to_json]
     cycles_number(args[:cycles_number]).times do
       life_cycles.push next_life_cycle
     end
@@ -125,6 +121,41 @@ class Field < Template
   end
   
   private
+  
+  def find_a_neighbors(i, j)
+    neighbors = [dead_cell] * 8
+    neighbors[0] = @cells[i - 1][j - 1] unless i == 0 && j == 0
+    neighbors[1] = @cells[i - 1][j]     unless i == 0
+    neighbors[2] = @cells[i - 1][j + 1] unless i == 0 && j == @cols - 1
+    neighbors[3] = @cells[i][j + 1]     unless j == @cols - 1
+    neighbors[4] = @cells[i + 1][j + 1] unless i == @rows - 1 && j == @cols - 1
+    neighbors[5] = @cells[i + 1][j]     unless i == @rows - 1
+    neighbors[6] = @cells[i + 1][j - 1] unless i == @rows - 1 && j == 0
+    neighbors[7] = @cells[i][j - 1]     unless j == 0
+    neighbors
+  end
+  
+  def processing_of_alive_cell(i, j)
+    neighbors = find_a_neighbors(i, j)
+    alive_neighbors_count = neighbors.map(&:kind).count(:alive)
+    unless (@cells[i][j].survival_range).include?(alive_neighbors_count)
+      @cells[i][j] = dead_cell
+    end
+  end
+  
+  def next_life_cycle
+    @rows.times do |i|
+      @cols.times do |j|
+        case @cells[i][j].kind
+        when :alive
+          processing_of_alive_cell(i, j)
+        when :dead
+        when :checkpoint
+        end
+      end
+    end
+    @cells.to_json
+  end
   
   def cycles_number(cycles_number)
     CYCLES_RANGE.include?(cycles_number)? cycles_number : CYCLES_RANGE.first
