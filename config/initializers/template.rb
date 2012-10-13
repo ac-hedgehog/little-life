@@ -1,3 +1,4 @@
+# coding: utf-8
 class Template
   attr_accessor :name, :rows, :cols, :cells
   
@@ -17,7 +18,7 @@ class Template
   def to_s
     "#{self.class.name} #{@name}:\n" + @cells.map { |row|
       row.map { |cell|
-        cell.is_alive? ? "." : " "
+        cell.is_alive? ? "O" : "X"
       }.join
     }.join("\n")
   end
@@ -62,8 +63,8 @@ class Colony < Template
     "#{self.class.name} #{@name}:\n" + @cells.map { |row|
       row.map { |cell|
         cell.is_alive? ? "#{cell.a}#{cell.b}" : "  "
-      }.join(" ")
-    }.join("\n")
+      }.join("|")
+    }.join("\n#{'—' * @cols * 3}\n")
   end
   
   private
@@ -137,7 +138,25 @@ class Field < Template
     end
   end
   
+  def set_colony(colony, top, left)
+    (0..colony.rows - 1).each do |i|
+      (0..colony.cols - 1).each do |j|
+        raise Exception.new "Bad position" unless @cells[i + top][j + left].is_dead?
+        @cells[i + top][j + left] = colony.cells[i][j] if colony.cells[i][j].is_alive?
+      end
+    end
+  end
+  
   def set_colonies(colonies)
-    
+    return unless colonies
+    colonies.each do |colony|
+      top = colony[:top] || 0
+      left = colony[:left] || 0
+      if (top + colony[:colony].rows > @rows) ||
+         (left + colony[:colony].cols > @cols)
+        raise Exception.new "Bad position for #{colony[:colony].name}"
+      end
+      set_colony colony[:colony], top, left
+    end
   end
 end
