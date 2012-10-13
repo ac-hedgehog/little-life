@@ -102,6 +102,8 @@ end
 
 class Field < Template
   
+  CYCLES_RANGE = (10..100)
+  
   def initialize(name, rows = SIZE_RANGE.last, cols = SIZE_RANGE.last, args = { })
     set_name name
     @rows, @cols = rows, cols
@@ -110,7 +112,23 @@ class Field < Template
     self
   end
   
+  def next_life_cycle
+    self.to_json
+  end
+  
+  def get_life(args = { })
+    life_cycles = []
+    cycles_number(args[:cycles_number]).times do
+      life_cycles.push next_life_cycle
+    end
+    life_cycles
+  end
+  
   private
+  
+  def cycles_number(cycles_number)
+    CYCLES_RANGE.include?(cycles_number)? cycles_number : CYCLES_RANGE.first
+  end
   
   def dead_cell
     FieldCell.new @name
@@ -139,8 +157,8 @@ class Field < Template
   end
   
   def set_colony(colony, top, left)
-    (0..colony.rows - 1).each do |i|
-      (0..colony.cols - 1).each do |j|
+    colony.rows.times do |i|
+      colony.cols.times do |j|
         raise Exception.new "Bad position" unless @cells[i + top][j + left].is_dead?
         @cells[i + top][j + left] = colony.cells[i][j] if colony.cells[i][j].is_alive?
       end

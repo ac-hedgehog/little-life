@@ -1,1 +1,11 @@
-ЖИЗНЬ
+<button id="get-new-colony">Новая колония</button>
+<button id="start-new-life">Начать жизнь</button>
+<table id="field-table">
+  <% @field.cells.each_with_index do |row, i| %>
+    <tr>
+      <% row.each_with_index do |cell, j| %>
+        <td data-cell="<%= %Q(#{i} #{j}) %>"></td>
+      <% end %>
+    </tr>
+  <% end %>
+<table>
