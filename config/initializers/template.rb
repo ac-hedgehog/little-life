@@ -102,7 +102,7 @@ end
 
 class Field < Template
   
-  CYCLES_RANGE = (10..100)
+  CYCLES_RANGE = (20..100)
   
   def initialize(name, rows = SIZE_RANGE.last, cols = SIZE_RANGE.last, args = { })
     set_name name
@@ -124,13 +124,13 @@ class Field < Template
   
   def find_a_neighbors(i, j)
     neighbors = [dead_cell] * 8
-    neighbors[0] = @cells[i - 1][j - 1] unless i == 0 && j == 0
+    neighbors[0] = @cells[i - 1][j - 1] unless i == 0 || j == 0
     neighbors[1] = @cells[i - 1][j]     unless i == 0
-    neighbors[2] = @cells[i - 1][j + 1] unless i == 0 && j == @cols - 1
+    neighbors[2] = @cells[i - 1][j + 1] unless i == 0 || j == @cols - 1
     neighbors[3] = @cells[i][j + 1]     unless j == @cols - 1
-    neighbors[4] = @cells[i + 1][j + 1] unless i == @rows - 1 && j == @cols - 1
+    neighbors[4] = @cells[i + 1][j + 1] unless i == @rows - 1 || j == @cols - 1
     neighbors[5] = @cells[i + 1][j]     unless i == @rows - 1
-    neighbors[6] = @cells[i + 1][j - 1] unless i == @rows - 1 && j == 0
+    neighbors[6] = @cells[i + 1][j - 1] unless i == @rows - 1 || j == 0
     neighbors[7] = @cells[i][j - 1]     unless j == 0
     neighbors
   end
@@ -138,22 +138,43 @@ class Field < Template
   def processing_of_alive_cell(i, j)
     neighbors = find_a_neighbors(i, j)
     alive_neighbors_count = neighbors.map(&:kind).count(:alive)
-    unless (@cells[i][j].survival_range).include?(alive_neighbors_count)
-      @cells[i][j] = dead_cell
+    if (@cells[i][j].survival_range).include?(alive_neighbors_count)
+      @cells[i][j]
+    else
+      dead_cell
+    end
+  end
+  
+  def processing_of_dead_cell(i, j)
+    neighbors = find_a_neighbors(i, j)
+    alive_neighbors = neighbors.map { |n| n if n.is_alive? }.compact
+    return @cells[i][j] if alive_neighbors.empty?
+    all_a = alive_neighbors.map &:a
+    all_b = alive_neighbors.map &:b
+    if (12..14).include?(alive_neighbors.map(&:misanthropy).sum) # all_a.max <= all_b.min
+      a = all_a.sum / all_a.size
+      b = all_b.sum / all_b.size
+      name = alive_neighbors.first.name
+      ColonyCell.new name, kind: :alive, a: a, b: b
+    else
+      @cells[i][j]
     end
   end
   
   def next_life_cycle
+    cells = @cells.map { |row| row.map { |cell| cell.clone } }
     @rows.times do |i|
       @cols.times do |j|
         case @cells[i][j].kind
         when :alive
-          processing_of_alive_cell(i, j)
+          cells[i][j] = processing_of_alive_cell(i, j)
         when :dead
+          cells[i][j] = processing_of_dead_cell(i, j)
         when :checkpoint
         end
       end
     end
+    @cells = cells
     @cells.to_json
   end
   

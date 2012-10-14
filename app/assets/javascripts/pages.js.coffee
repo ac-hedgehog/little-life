@@ -2,9 +2,9 @@ life_cycles_to_object = (life_cycles) ->
     new_life_cycles = (JSON.parse life_cycle for life_cycle in life_cycles)
 
 generage_color_for = (cell) ->
-    r = Number(255 - (32 * (cell.a + 1) - 1)).toString(16)
+    r = Number(287 - 32 * (cell.a + 1)).toString(16)
     g = Number(32 * (cell.b + 1) - 1).toString(16)
-    b = Number(16 * (cell.a + cell.b + 2) - 1).toString(16)
+    b = Number(32 * (cell.b - cell.a + 2) - 1).toString(16)
     "##{r}#{g}#{b}"
 
 draw_field_cell = (cell, i, j) ->
@@ -38,4 +38,4 @@ start_new_life = () ->
 
 $("#get-new-colony").live "click", get_new_life
 $("#start-new-life").live "click", () ->
-    $.interval = setInterval(start_new_life, 500)
+    $.interval = setInterval(start_new_life, 300)

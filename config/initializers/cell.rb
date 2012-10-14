@@ -4,7 +4,7 @@ class Cell
   @@cell_kinds = [:dead, :alive]
   
   def initialize(name, args = { })
-    @name = "#{name} Junior"
+    @name = name
     self.kind = args[:kind]
     self
   end
@@ -63,6 +63,15 @@ class ColonyCell < Cell
   
   def survival_range
     (@a..@b)
+  end
+  
+  def life_position
+    double_average = RANGE_OF_SURVIVAL.first + RANGE_OF_SURVIVAL.last
+    (@a + @b - double_average).to_f / (@b - @a + 1)
+  end
+  
+  def misanthropy
+    RANGE_OF_SURVIVAL.last - life_position
   end
   
   def genome
