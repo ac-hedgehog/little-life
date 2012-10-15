@@ -25,12 +25,14 @@ class Template
   
   private
   
-  def set_cell
-    Cell.new @name
+  def set_cell(i, j)
+    Cell.new name: @name, id: i * @cols + j
   end
   
   def set_cells
-    @cells = Array.new(@rows).map { Array.new(@cols).map { set_cell } }
+    @cells = Array.new(@rows).each_with_index.map { |row, i|
+      Array.new(@cols).each_with_index.map { |cell, j| set_cell(i, j) }
+    }
   end
   
   def set_name(name)
@@ -78,13 +80,13 @@ class Colony < Template
     alive = Random.rand(1.0) < @probabilities[i][j] ? :alive : :dead
     a = alive == :alive ? rand(ColonyCell::RANGE_OF_SURVIVAL) : nil
     b = alive == :alive ? rand(a..ColonyCell::RANGE_OF_SURVIVAL.last) : nil
-    ColonyCell.new @name, kind: alive, a: a, b: b
+    ColonyCell.new name: @name, id: i * @cols + j, kind: alive, a: a, b: b
   end
   
   def set_cells
-    @cells = Array.new(@rows).each_with_index.map { |x, i|
-      Array.new(@cols).each_with_index.map { |y, j|
-        set_cell i, j
+    @cells = Array.new(@rows).each_with_index.map { |row, i|
+      Array.new(@cols).each_with_index.map { |cell, j|
+        set_cell(i, j)
       }
     }
   end
@@ -123,7 +125,7 @@ class Field < Template
   private
   
   def find_a_neighbors(i, j)
-    neighbors = [dead_cell] * 8
+    neighbors = [dead_cell(i, j)] * 8
     neighbors[0] = @cells[i - 1][j - 1] unless i == 0 || j == 0
     neighbors[1] = @cells[i - 1][j]     unless i == 0
     neighbors[2] = @cells[i - 1][j + 1] unless i == 0 || j == @cols - 1
@@ -141,7 +143,7 @@ class Field < Template
     if (@cells[i][j].survival_range).include?(alive_neighbors_count)
       @cells[i][j]
     else
-      dead_cell
+      dead_cell(i, j)
     end
   end
   
@@ -154,7 +156,7 @@ class Field < Template
       a = alive_neighbors.map(&:a).sum / alive_neighbors.map(&:a).size
       b = alive_neighbors.map(&:b).sum / alive_neighbors.map(&:b).size
       name = alive_neighbors.first.name
-      ColonyCell.new name, kind: :alive, a: a, b: b
+      ColonyCell.new name: name, id: i * @cols + j, kind: :alive, a: a, b: b
     else
       @cells[i][j]
     end
@@ -181,20 +183,23 @@ class Field < Template
     CYCLES_RANGE.include?(cycles_number)? cycles_number : CYCLES_RANGE.first
   end
   
-  def dead_cell
-    FieldCell.new @name
+  def dead_cell(i, j)
+    FieldCell.new name: @name, id: i * @cols + j
   end
   
-  def checkpoint_cell(checkpoint_type)
-    FieldCell.new @name, kind: :checkpoint, checkpoint_type: checkpoint_type
+  def checkpoint_cell(i, j, checkpoint_type)
+    FieldCell.new name: @name,
+                  id: i * @cols + j,
+                  kind: :checkpoint,
+                  checkpoint_type: checkpoint_type
   end
   
   def set_checkpoints(checkpoints)
     raise Exception.new 'Bad size' unless checkpoints.size == @rows &&
                                           checkpoints.first.size == @cols
-    @cells = checkpoints.map { |row|
-      row.map { |checkpoint|
-        checkpoint ? checkpoint_cell(checkpoint.to_sym) : dead_cell
+    @cells = checkpoints.each_with_index.map { |row, i|
+      row.each_with_index.map { |checkpoint, j|
+        checkpoint ? checkpoint_cell(i, j, checkpoint.to_sym) : dead_cell(i, j)
       }
     }
   end
@@ -203,7 +208,9 @@ class Field < Template
     if checkpoints
       set_checkpoints(checkpoints)
     else
-      @cells = Array.new(@rows).map { Array.new(@cols).map { dead_cell } }
+      @cells = Array.new(@rows).each_with_index.map { |row, i|
+        Array.new(@cols).each_with_index.map { |cell, j| dead_cell(i, j) }
+      }
     end
   end
   
