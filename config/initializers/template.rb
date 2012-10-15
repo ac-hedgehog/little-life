@@ -156,7 +156,9 @@ class Field < Template
       a = alive_neighbors.map(&:a).sum / alive_neighbors.map(&:a).size
       b = alive_neighbors.map(&:b).sum / alive_neighbors.map(&:b).size
       name = alive_neighbors.first.name
-      ColonyCell.new name: name, id: i * @cols + j, kind: :alive, a: a, b: b
+      parents = alive_neighbors.map(&:id).push *(neighbors.map(&:parents).flatten).uniq
+      ColonyCell.new  name: name, id: i * @cols + j, parents: parents,
+                      kind: :alive, a: a, b: b
     else
       @cells[i][j]
     end
@@ -172,6 +174,7 @@ class Field < Template
         when :dead
           cells[i][j] = processing_of_dead_cell(i, j)
         when :checkpoint
+          cells[i][j] = @cells[i][j]
         end
       end
     end
@@ -195,23 +198,17 @@ class Field < Template
   end
   
   def set_checkpoints(checkpoints)
-    raise Exception.new 'Bad size' unless checkpoints.size == @rows &&
-                                          checkpoints.first.size == @cols
-    @cells = checkpoints.each_with_index.map { |row, i|
-      row.each_with_index.map { |checkpoint, j|
-        checkpoint ? checkpoint_cell(i, j, checkpoint.to_sym) : dead_cell(i, j)
-      }
-    }
+    checkpoints.each do |checkpoint|
+      i, j = checkpoint[:coordinates].first, checkpoint[:coordinates].second
+      @cells[i][j] = checkpoint_cell(i, j, checkpoint[:type].to_sym)
+    end
   end
   
   def set_cells(checkpoints = nil)
-    if checkpoints
-      set_checkpoints(checkpoints)
-    else
-      @cells = Array.new(@rows).each_with_index.map { |row, i|
-        Array.new(@cols).each_with_index.map { |cell, j| dead_cell(i, j) }
-      }
-    end
+    @cells = Array.new(@rows).each_with_index.map { |row, i|
+      Array.new(@cols).each_with_index.map { |cell, j| dead_cell(i, j) }
+    }
+    set_checkpoints(checkpoints) if checkpoints
   end
   
   def set_colony(colony, top, left)

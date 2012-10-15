@@ -8,7 +8,8 @@ class PagesController < ApplicationController
   
   def new_life
     colonies = [{ colony: Colony.new("John Dorian") }]
-    field = Field.new "Test Field", 15, 15, colonies: colonies
+    checkpoints = [{ type: :finish, coordinates: [14, 14] }]
+    field = Field.new "Test Field", 15, 15, checkpoints: checkpoints, colonies: colonies
     respond_to { |format| format.json { render json: field.get_life } }
   end
 end
