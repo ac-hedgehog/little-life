@@ -149,11 +149,10 @@ class Field < Template
     neighbors = find_a_neighbors(i, j)
     alive_neighbors = neighbors.map { |n| n if n.is_alive? }.compact
     return @cells[i][j] if alive_neighbors.empty?
-    all_a = alive_neighbors.map &:a
-    all_b = alive_neighbors.map &:b
-    if (12..14).include?(alive_neighbors.map(&:misanthropy).sum) # all_a.max <= all_b.min
-      a = all_a.sum / all_a.size
-      b = all_b.sum / all_b.size
+    misanthropy_level = alive_neighbors.map(&:misanthropy).sum
+    if ColonyCell.allowable_range_of_fertility.include?(misanthropy_level)
+      a = alive_neighbors.map(&:a).sum / alive_neighbors.map(&:a).size
+      b = alive_neighbors.map(&:b).sum / alive_neighbors.map(&:b).size
       name = alive_neighbors.first.name
       ColonyCell.new name, kind: :alive, a: a, b: b
     else

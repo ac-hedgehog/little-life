@@ -78,6 +78,12 @@ class ColonyCell < Cell
     { survival: [@a, @b] }
   end
   
+  def self.allowable_range_of_fertility
+    max_mtp = RANGE_OF_SURVIVAL.last * 2 - 1
+    mtp_variation = 1
+    (max_mtp - mtp_variation..max_mtp + mtp_variation)
+  end
+  
   private
   
   def clear_genome
