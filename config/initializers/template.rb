@@ -102,7 +102,7 @@ end
 
 class Field < Template
   
-  CYCLES_RANGE = (20..100)
+  LIFE_CYCLES_RANGE = (10..100)
   
   def initialize(name, rows = SIZE_RANGE.last, cols = SIZE_RANGE.last, args = { })
     set_name name
@@ -113,8 +113,8 @@ class Field < Template
   end
   
   def get_life(args = { })
-    life_cycles = [@cells.to_json]
-    cycles_number(args[:cycles_number]).times do
+    life_cycles = [@cells]
+    life_cycles_number(args[:life_cycles_number]).times do
       life_cycles.push next_life_cycle
     end
     life_cycles
@@ -151,7 +151,7 @@ class Field < Template
     return @cells[i][j] if alive_neighbors.empty?
     all_a = alive_neighbors.map &:a
     all_b = alive_neighbors.map &:b
-    if (12..14).include?(alive_neighbors.map(&:misanthropy).sum) # all_a.max <= all_b.min
+    if (12..14).include?(alive_neighbors.map(&:misanthropy).sum)
       a = all_a.sum / all_a.size
       b = all_b.sum / all_b.size
       name = alive_neighbors.first.name
@@ -175,11 +175,15 @@ class Field < Template
       end
     end
     @cells = cells
-    @cells.to_json
+    @cells
   end
   
-  def cycles_number(cycles_number)
-    CYCLES_RANGE.include?(cycles_number)? cycles_number : CYCLES_RANGE.first
+  def life_cycles_number(life_cycles_number)
+    if LIFE_CYCLES_RANGE.include?(life_cycles_number)?
+      life_cycles_number
+    else
+      LIFE_CYCLES_RANGE.first
+    end
   end
   
   def dead_cell
@@ -220,13 +224,63 @@ class Field < Template
   def set_colonies(colonies)
     return unless colonies
     colonies.each do |colony|
-      top = colony[:top] || 0
-      left = colony[:left] || 0
+      top, left = colony[:top] || 0, colony[:left] || 0
       if (top + colony[:colony].rows > @rows) ||
          (left + colony[:colony].cols > @cols)
         raise Exception.new "Bad position for #{colony[:colony].name}"
       end
       set_colony colony[:colony], top, left
     end
+  end
+end
+
+def Evolution
+  attr_accessor :main_colony, :population, :population_size
+  
+  DEFAULT_TASK = { goal: :maximizing }
+  POPULATION_SIZE_RANGE = (5..20)
+  
+  def initialize(args = { })
+    @field_rows, @field_cols = args[:field_rows], args[:field_cols]
+    
+    @main_colony = args[:main_colony]
+    @main_top, @main_left = args[:main_top] || 0, args[:main_left] || 0
+    @other_colonies = args[:other_colonies] || []
+    
+    @population = []
+    @population_size = args[:population_size] || POPULATION_SIZE_RANGE.min
+    @life_cycles_number = args[:life_cycles_number] || LIFE_CYCLES_RANGE.min
+    @evolution_step = args[:evolution_step] || 0
+    @task = args[:task] || DEFAULT_TASK
+    self
+  end
+  
+  def evolve
+    @evolution_step += 1
+    @population_size.times do |population_number|
+      main_colony = if population_number == 1
+        @main_colony || Colony.new("Creature")
+      else
+        if @evolution_step == 1 && !@main_colony
+          Colony.new("Creature")
+        else
+          mutate_main_colony
+        end
+      end
+      all_colonies = @other_colonies
+      all_colonies.push { colony: main_colony, top: @main_top, left: @main_left }
+      field = Field.new "Evolution Field", @field_rows, @field_cols,
+                                           colonies: all_colonies
+      life_cycles = field.get_life cycles_number: @life_cycles_number
+      person = { colony: main_colony, field: field, life_cycles: life_cycles }
+      @population.push person
+    end
+    @population.map &:life_cycles
+  end
+  
+  private
+  
+  def mutate_main_colony
+    Colony.new("Creature")
   end
 end
