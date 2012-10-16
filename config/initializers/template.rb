@@ -183,7 +183,7 @@ class Field < Template
   end
   
   def life_cycles_number(life_cycles_number)
-    if LIFE_CYCLES_RANGE.include?(life_cycles_number)?
+    if LIFE_CYCLES_RANGE.include?(life_cycles_number)
       life_cycles_number
     else
       LIFE_CYCLES_RANGE.first
@@ -237,7 +237,7 @@ class Field < Template
   end
 end
 
-def Evolution
+class Evolution
   attr_accessor :main_colony, :population, :population_size
   
   DEFAULT_TASK = { goal: :maximizing }
@@ -270,15 +270,15 @@ def Evolution
           mutate_main_colony
         end
       end
-      all_colonies = @other_colonies
-      all_colonies.push { colony: main_colony, top: @main_top, left: @main_left }
+      all_colonies = @other_colonies.clone
+      all_colonies.push({ colony: main_colony, top: @main_top, left: @main_left })
       field = Field.new "Evolution Field", @field_rows, @field_cols,
                                            colonies: all_colonies
       life_cycles = field.get_life cycles_number: @life_cycles_number
       person = { colony: main_colony, field: field, life_cycles: life_cycles }
-      @population.push person
+      @population.push(person)
     end
-    @population.map &:life_cycles
+    @population.map { |person| person[:life_cycles] }
   end
   
   private

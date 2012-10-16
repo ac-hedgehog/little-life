@@ -1,6 +1,3 @@
-evolution_step_to_object = (evolution_step) ->
-    JSON.parse life_cycle for life_cycle in life_cycles
-
 generage_color_for = (cell) ->
     r = Number(287 - 32 * (cell.a + 1)).toString(16)
     g = Number(32 * (cell.b + 1) - 1).toString(16)
@@ -15,7 +12,7 @@ draw_field_cell = (cell, i, j) ->
         $("#field-table td[data-cell='#{i} #{j}']").css "background-color", "yellow"
 
 draw_field_table = () ->
-    life_cycle = $.evolution_step[$.p_n][$.t]
+    life_cycle = $.evolution_step[$.pop_num][$.t]
     $("#field-table td").css "background-color", "white"
     for i of life_cycle
         for j of life_cycle[i]
@@ -28,24 +25,27 @@ get_new_evolution_step = () ->
             position: [0, 0]
         url: "new_life"
         success: (evolution_step) ->
-            $.evolution_step = evolution_step_to_object(evolution_step)
-            $.p_n = 0
+            $.evolution_step = evolution_step
+            $.pop_num = 0
             $.t = 0
             draw_field_table()
-            clearInterval($.interval)
+            clearTimeout($.timeout)
 
 start_population_life = () ->
-    if $.evolution_step && $.evolution_step[$.p_n] && $.evolution_step[$.p_n][$.t]
+    if $.evolution_step && $.evolution_step[$.pop_num] && $.evolution_step[$.pop_num][$.t]
         draw_field_table()
         $.t += 1
+        $.timeout = setTimeout(start_population_life, 300)
+    else
+        clearTimeout($.timeout)
+        start_evolution_step()
 
 start_evolution_step = () ->
-    if $.evolution_step && $.evolution_step[$.p_n]
-            start_population_step()
-            $.p_n += 1
+    if $.evolution_step && $.evolution_step[$.pop_num]
+        start_population_life()
+        $.pop_num += 1
     else
-        clearInterval($.interval)
+        clearTimeout($.timeout)
 
 $("#get-new-colony").live "click", get_new_evolution_step
-$("#start-new-life").live "click", () ->
-    $.interval = setInterval(start_evolution_step, 300)
+$("#start-new-life").live "click", start_evolution_step
