@@ -1,10 +1,12 @@
 class Cell
-  attr_accessor :name, :kind
+  attr_accessor :name, :id, :parents, :kind
   
   @@cell_kinds = [:dead, :alive]
   
-  def initialize(name, args = { })
-    @name = name
+  def initialize(args = { })
+    @name = args[:name]
+    @id = args[:id] || 0
+    @parents = args[:parents] || []
     self.kind = args[:kind]
     self
   end
@@ -43,8 +45,8 @@ class ColonyCell < Cell
   
   RANGE_OF_SURVIVAL = (1..7)
   
-  def initialize(name, args = { })
-    super(name, args)
+  def initialize(args = { })
+    super(args)
     self.survival = args[:a], args[:b] if self.is_alive?
     self
   end
@@ -78,6 +80,12 @@ class ColonyCell < Cell
     { survival: [@a, @b] }
   end
   
+  def self.allowable_range_of_fertility
+    max_mtp = RANGE_OF_SURVIVAL.last * 2 - 1
+    mtp_variation = 1
+    (max_mtp - mtp_variation..max_mtp + mtp_variation)
+  end
+  
   private
   
   def clear_genome
@@ -97,8 +105,8 @@ class FieldCell < ColonyCell
   @@cell_kinds = [:dead, :alive, :checkpoint]
   CHECKPOINT_TYPES = [:finish]
   
-  def initialize(name, args = { })
-    super(name, args)
+  def initialize(args = { })
+    super(args)
     self.checkpoint_type = args[:checkpoint_type]
     self
   end

@@ -11,6 +11,8 @@ draw_field_cell = (cell, i, j) ->
     if cell.kind == 'alive'
         color = generage_color_for cell
         $("#field-table td[data-cell='#{i} #{j}']").css "background-color", color
+    if cell.kind == 'checkpoint'
+        $("#field-table td[data-cell='#{i} #{j}']").css "background-color", "yellow"
 
 draw_field_table = () ->
     life_cycle = $.evolution_step[$.p_n][$.t]
