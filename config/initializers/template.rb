@@ -2,9 +2,9 @@
 class Template
   attr_accessor :name, :rows, :cols, :cells
   
-  SIZE_RANGE = (10..100)
+  SIZE_RANGE = (5..50)
   
-  def initialize(name, rows = SIZE_RANGE.last, cols = SIZE_RANGE.last)
+  def initialize(name, rows = SIZE_RANGE.max, cols = SIZE_RANGE.min)
     set_name name
     @rows, @cols = rows, cols
     set_cells
@@ -18,7 +18,7 @@ class Template
   def to_s
     "#{self.class.name} #{@name}:\n" + @cells.map { |row|
       row.map { |cell|
-        cell.is_alive? ? "O" : "X"
+        cell.alive? ? "O" : "X"
       }.join
     }.join("\n")
   end
@@ -64,7 +64,7 @@ class Colony < Template
   def to_s
     "#{self.class.name} #{@name}:\n" + @cells.map { |row|
       row.map { |cell|
-        cell.is_alive? ? "#{cell.a}#{cell.b}" : "  "
+        cell.alive? ? "#{cell.a}#{cell.b}" : "  "
       }.join("|")
     }.join("\n#{'—' * @cols * 3}\n")
   end
@@ -72,15 +72,15 @@ class Colony < Template
   private
   
   def set_size(rows, cols)
-    @rows = SIZE_RANGE.include?(rows) ? rows : SIZE_RANGE.first
-    @cols = SIZE_RANGE.include?(cols) ? cols : SIZE_RANGE.first
+    @rows = SIZE_RANGE.include?(rows) ? rows : SIZE_RANGE.min
+    @cols = SIZE_RANGE.include?(cols) ? cols : SIZE_RANGE.min
   end
   
   def set_cell(i, j)
-    alive = Random.rand(1.0) < @probabilities[i][j] ? :alive : :dead
-    a = alive == :alive ? rand(ColonyCell::RANGE_OF_SURVIVAL) : nil
-    b = alive == :alive ? rand(a..ColonyCell::RANGE_OF_SURVIVAL.last) : nil
-    ColonyCell.new name: @name, id: i * @cols + j, kind: alive, a: a, b: b
+    alive = Random.rand(1.0) < @probabilities[i][j] ? true : false
+    a = alive ? rand(ColonyCell::RANGE_OF_SURVIVAL) : nil
+    b = alive ? rand(a..ColonyCell::RANGE_OF_SURVIVAL.max) : nil
+    ColonyCell.new name: @name, id: i * @cols + j, alive: alive, a: a, b: b
   end
   
   def set_cells
@@ -106,7 +106,7 @@ class Field < Template
   
   LIFE_CYCLES_RANGE = (10..100)
   
-  def initialize(name, rows = SIZE_RANGE.last, cols = SIZE_RANGE.last, args = { })
+  def initialize(name, rows = SIZE_RANGE.min, cols = SIZE_RANGE.min, args = { })
     set_name name
     @rows, @cols = rows, cols
     set_cells args[:checkpoints]
@@ -139,7 +139,7 @@ class Field < Template
   
   def processing_of_alive_cell(i, j)
     neighbors = find_a_neighbors(i, j)
-    alive_neighbors_count = neighbors.map(&:kind).count(:alive)
+    alive_neighbors_count = neighbors.map(&:alive?).count(true)
     if (@cells[i][j].survival_range).include?(alive_neighbors_count)
       @cells[i][j]
     else
@@ -149,7 +149,7 @@ class Field < Template
   
   def processing_of_dead_cell(i, j)
     neighbors = find_a_neighbors(i, j)
-    alive_neighbors = neighbors.map { |n| n if n.is_alive? }.compact
+    alive_neighbors = neighbors.map{ |n| n if n.alive? }.compact
     return @cells[i][j] if alive_neighbors.empty?
     misanthropy_level = alive_neighbors.map(&:misanthropy).sum
     if ColonyCell.allowable_range_of_fertility.include?(misanthropy_level)
@@ -158,7 +158,7 @@ class Field < Template
       name = alive_neighbors.first.name
       parents = alive_neighbors.map(&:id).push *(neighbors.map(&:parents).flatten).uniq
       ColonyCell.new  name: name, id: i * @cols + j, parents: parents,
-                      kind: :alive, a: a, b: b
+                      alive: true, a: a, b: b
     else
       @cells[i][j]
     end
@@ -168,13 +168,10 @@ class Field < Template
     cells = @cells.map { |row| row.map { |cell| cell.clone } }
     @rows.times do |i|
       @cols.times do |j|
-        case @cells[i][j].kind
-        when :alive
+        if @cells[i][j].alive?
           cells[i][j] = processing_of_alive_cell(i, j)
-        when :dead
+        else
           cells[i][j] = processing_of_dead_cell(i, j)
-        when :checkpoint
-          cells[i][j] = @cells[i][j]
         end
       end
     end
@@ -186,7 +183,7 @@ class Field < Template
     if LIFE_CYCLES_RANGE.include?(life_cycles_number)
       life_cycles_number
     else
-      LIFE_CYCLES_RANGE.first
+      LIFE_CYCLES_RANGE.min
     end
   end
   
@@ -197,8 +194,7 @@ class Field < Template
   def checkpoint_cell(i, j, checkpoint_type)
     FieldCell.new name: @name,
                   id: i * @cols + j,
-                  kind: :checkpoint,
-                  checkpoint_type: checkpoint_type
+                  checkpoint: checkpoint_type
   end
   
   def set_checkpoints(checkpoints)
@@ -218,8 +214,8 @@ class Field < Template
   def set_colony(colony, top, left)
     colony.rows.times do |i|
       colony.cols.times do |j|
-        raise Exception.new "Bad position" unless @cells[i + top][j + left].is_dead?
-        @cells[i + top][j + left] = colony.cells[i][j] if colony.cells[i][j].is_alive?
+        raise Exception.new "Bad position" unless @cells[i + top][j + left].dead?
+        @cells[i + top][j + left] = colony.cells[i][j] if colony.cells[i][j].alive?
       end
     end
   end
@@ -233,73 +229,6 @@ class Field < Template
         raise Exception.new "Bad position for #{colony[:colony].name}"
       end
       set_colony colony[:colony], top, left
-    end
-  end
-end
-
-class Evolution
-  attr_accessor :main_colony, :population, :population_size
-  
-  DEFAULT_TASK = { goal: :maximizing }
-  POPULATION_SIZE_RANGE = (5..20)
-  EVOLUTION_STEPS_RANGE = (3..20)
-  
-  def initialize(args = { })
-    @field_rows, @field_cols = args[:field_rows], args[:field_cols]
-    
-    @main_colony = args[:main_colony]
-    @main_top, @main_left = args[:main_top] || 0, args[:main_left] || 0
-    @other_colonies = args[:other_colonies] || []
-    
-    @population_size = args[:population_size] || POPULATION_SIZE_RANGE.min
-    @life_cycles_number = args[:life_cycles_number] || LIFE_CYCLES_RANGE.min
-    @evolution_steps = args[:evolution_steps] || EVOLUTION_STEPS_RANGE.min
-    @task = args[:task] || DEFAULT_TASK
-    self
-  end
-  
-  def get_person_for_population(step, population_number)
-    main_colony = get_main_colony_for_evolution_step step, population_number
-    all_colonies = @other_colonies.clone
-    all_colonies.push({ colony: main_colony, top: @main_top, left: @main_left })
-    field = Field.new "Evolution Field", @field_rows, @field_cols,
-                                         colonies: all_colonies
-    field_clone = field.clone
-    life_cycles = field_clone.get_life cycles_number: @life_cycles_number
-    { colony: main_colony, field: field, life_cycles: life_cycles }
-  end
-  
-  def evolution_step(step)
-    population = []
-    @population_size.times do |population_number|
-      population.push(get_person_for_population(step, population_number))
-    end
-    population.map { |person| person[:life_cycles] }
-  end
-  
-  def evolve
-    evolution = []
-    @evolution_steps.times do |step|
-      evolution.push(evolution_step(step))
-    end
-    evolution
-  end
-  
-  private
-  
-  def mutate_main_colony
-    Colony.new("Creature")
-  end
-  
-  def get_main_colony_for_evolution_step(step, population_number)
-    if population_number == 1
-      @main_colony || Colony.new("Creature")
-    else
-      if step == 1 && !@main_colony
-        Colony.new("Creature")
-      else
-        mutate_main_colony
-      end
     end
   end
 end

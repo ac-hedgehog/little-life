@@ -1,42 +1,34 @@
 class Cell
-  attr_accessor :name, :id, :parents, :kind
-  
-  @@cell_kinds = [:dead, :alive]
+  attr_accessor :name, :id, :parents, :alive
   
   def initialize(args = { })
     @name = args[:name]
     @id = args[:id] || 0
     @parents = args[:parents] || []
-    self.kind = args[:kind]
+    @alive = args[:alive] || false
     self
   end
   
   def alive
-    @kind = :alive
+    @alive = true
     self
   end
   
   def kill
-    @kind = :dead
+    @alive = false
     self
   end
   
-  def is_alive?
-    @kind == :alive
+  def alive?
+    @alive
   end
   
-  def is_dead?
-    @kind == :dead
+  def dead?
+    !@alive
   end
   
   def inspect
-    "#<#{self.class.name} #{@name} is #{@kind}>"
-  end
-  
-  private
-  
-  def kind=(kind)
-    @kind = @@cell_kinds.include?(kind) ? kind : @@cell_kinds.first
+    "#<#{self.class.name} #{@name} is #{(@alive ? 'alive' : 'dead')}>"
   end
 end
 
@@ -47,19 +39,19 @@ class ColonyCell < Cell
   
   def initialize(args = { })
     super(args)
-    self.survival = args[:a], args[:b] if self.is_alive?
+    self.survival = args[:a], args[:b] if self.alive?
     self
   end
   
   def alive(a, b)
-    @kind = :alive
+    @alive = true
     self.survival = a, b
     self
   end
   
   def kill
-    @kind = :dead
-    clear_genome
+    @alive = false
+    self.clear_genome
     self
   end
   
@@ -68,12 +60,12 @@ class ColonyCell < Cell
   end
   
   def life_position
-    double_average = RANGE_OF_SURVIVAL.first + RANGE_OF_SURVIVAL.last
+    double_average = RANGE_OF_SURVIVAL.min + RANGE_OF_SURVIVAL.max
     (@a + @b - double_average).to_f / (@b - @a + 1)
   end
   
   def misanthropy
-    RANGE_OF_SURVIVAL.last - life_position
+    RANGE_OF_SURVIVAL.max - life_position
   end
   
   def genome
@@ -81,7 +73,7 @@ class ColonyCell < Cell
   end
   
   def self.allowable_range_of_fertility
-    max_mtp = RANGE_OF_SURVIVAL.last * 2 - 1
+    max_mtp = RANGE_OF_SURVIVAL.max * 2 - 1
     mtp_variation = 1
     (max_mtp - mtp_variation..max_mtp + mtp_variation)
   end
@@ -94,38 +86,19 @@ class ColonyCell < Cell
   
   def survival=(*args)
     a, b = args.first
-    @a = RANGE_OF_SURVIVAL.include?(a) ? a : RANGE_OF_SURVIVAL.first
-    @b = RANGE_OF_SURVIVAL.include?(b) && a <= b ? b : RANGE_OF_SURVIVAL.last
+    @a = RANGE_OF_SURVIVAL.include?(a) ? a : RANGE_OF_SURVIVAL.min
+    @b = RANGE_OF_SURVIVAL.include?(b) && a <= b ? b : RANGE_OF_SURVIVAL.max
   end
 end
 
 class FieldCell < ColonyCell
-  attr_accessor :checkpoint_type
+  attr_accessor :checkpoint
   
-  @@cell_kinds = [:dead, :alive, :checkpoint]
   CHECKPOINT_TYPES = [:finish]
   
   def initialize(args = { })
     super(args)
-    self.checkpoint_type = args[:checkpoint_type]
+    @checkpoint = args[:checkpoint] if CHECKPOINT_TYPES.include?(args[:checkpoint])
     self
-  end
-  
-  def is_checkpoint
-    @kind = :checkpoint
-    clear_genome
-    self
-  end
-  
-  def is_checkpoint?
-    @kind == :checkpoint
-  end
-  
-  private
-  
-  def checkpoint_type=(checkpoint_type)
-    @checkpoint_type = if self.is_checkpoint?
-      CHECKPOINT_TYPES.include?(checkpoint_type)? checkpoint_type : CHECKPOINT_TYPES.first
-    end
   end
 end

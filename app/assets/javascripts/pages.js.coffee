@@ -13,10 +13,10 @@ generage_color_for = (cell) ->
     "##{r}#{g}#{b}"
 
 draw_field_cell = (cell, i, j) ->
-    if cell.kind == 'alive'
+    if cell.alive == true
         color = generage_color_for cell
         $("#field-table td[data-cell='#{i} #{j}']").css "background-color", color
-    if cell.kind == 'checkpoint'
+    if cell.checkpoint == 'finish'
         $("#field-table td[data-cell='#{i} #{j}']").css "background-color", "yellow"
 
 draw_field_table = () ->
