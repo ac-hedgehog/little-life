@@ -27,11 +27,19 @@ draw_life_cycle = () ->
 draw_population = () ->
     if $.evolution[$.step]
         for colony_num of $.evolution[$.step]
-            cells = $.evolution[$.step][colony_num]['colony']['cells']
-            draw_table "colony-#{colony_num}-table", cells
+            person = $.evolution[$.step][colony_num]
+            colony_block = "#colony-#{colony_num}-block"
+            
+            draw_table "colony-#{colony_num}-table", person['colony']['cells']
+            $("#{colony_block} .colony-name").text(person['colony']['name'])
+            $("#{colony_block} .colony-number").text(parseInt(colony_num) + 1)
+            $("#{colony_block} .task-points").text(person['task_points']['points'])
+            $("#{colony_block} .task-parents").text(person['task_points']['cells'])
 
 clear_population = () ->
     $("#population-container table td").css "background-color", "white"
+    $(".task-points,.colony-name,.colony-number,.task-parents").text("")
+    
 
 draw_table = (table, cells) ->
     $("##{table} td").css "background-color", "white"

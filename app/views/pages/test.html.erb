@@ -36,15 +36,21 @@
   <div id="population-container">
     <div>Популяция:</div>
     <% 5.times do |n| %>
-      <table id="colony-<%= n %>-table" class="field">
-        <% @colony.cells.each_with_index do |row, i| %>
-          <tr>
-            <% row.each_with_index do |cell, j| %>
-              <td data-cell="<%= %Q(#{i} #{j}) %>"></td>
-            <% end %>
-          </tr>
-        <% end %>
-      </table>
+      <div id="colony-<%= n %>-block" class="colony-block">
+        <div>Имя: <span class="colony-name"></span></div>
+        <div>Номер: <span class="colony-number"></span></div>
+        <table id="colony-<%= n %>-table" class="field">
+          <% @colony.cells.each_with_index do |row, i| %>
+            <tr>
+              <% row.each_with_index do |cell, j| %>
+                <td data-cell="<%= %Q(#{i} #{j}) %>"></td>
+              <% end %>
+            </tr>
+          <% end %>
+        </table>
+        <div>Набрано очков: <span class="task-points"></span></div>
+        <div>Повлиявшие клетки: <span class="task-parents"></span></div>
+      </div>
     <% end %>
   </div>
 </div>

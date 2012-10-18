@@ -30,7 +30,7 @@ class Evolution
                                          colonies: all_colonies
     field_clone = field.clone
     life_cycles = field_clone.get_life cycles_number: @life_cycles_number
-    task_points = calculate_task_points_for field.cells, life_cycles.last
+    task_points = calculate_task_points_for main_colony, field.cells, life_cycles.last
     { colony: main_colony, life_cycles: life_cycles, task_points: task_points }
   end
   
@@ -52,9 +52,9 @@ class Evolution
   
   private
   
-  def maximizing_points_for(cells_before, cells_after)
-    rows_before = cells_before.size
-    cols_before = cells_before.first.size
+  def maximizing_points_for(colony_before, cells_before, cells_after)
+    rows_before = colony_before.cells.size
+    cols_before = colony_before.cells.first.size
     alive_cells_before_count = cells_before.map{ |row| row.map(&:alive?).count(true) }.sum.to_f
     alive_cells_after_count = cells_after.map{ |row| row.map(&:alive?).count(true) }.sum.to_f
     points = alive_cells_after_count + rows_before * cols_before / alive_cells_before_count
@@ -64,15 +64,15 @@ class Evolution
     }.flatten
     before_significant_cells = significant_cells.map { |id|
       id <= rows_before * cols_before ? id : nil
-    }.compact
+    }.compact.uniq.sort
     
-    { points => before_significant_cells }
+    { points: points.round(2), cells: before_significant_cells }
   end
   
-  def calculate_task_points_for(cells_before, cells_after)
+  def calculate_task_points_for(colony_before, cells_before, cells_after)
     case @task[:goal]
     when :maximizing
-      maximizing_points_for cells_before, cells_after
+      maximizing_points_for colony_before, cells_before, cells_after
     end
   end
   
