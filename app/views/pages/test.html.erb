@@ -1,14 +1,25 @@
-<button id="get-new-colony">Новая колония</button>
-<button id="start-new-life">Начать жизнь</button>
-<table id="field-table">
-  <% @field.cells.each_with_index do |row, i| %>
-    <tr>
-      <% row.each_with_index do |cell, j| %>
-        <td data-cell="<%= %Q(#{i} #{j}) %>"></td>
-      <% end %>
-    </tr>
-  <% end %>
-<table>
+<div id="evolution-form-block">
+  <button id="get-new-evolution">ЭВОЛЮЦИОНИРОВАТЬ</button>
+</div>
+
+<div id="life-player-block">
+  <button id="play-evolution">Запуск</button>
+  <button id="pause-evolution">Пауза</button>
+  <button id="stop-evolution">Стоп</button>
+</div>
+
+<div id="table-block">
+  <table id="field-table">
+    <% @field.cells.each_with_index do |row, i| %>
+      <tr>
+        <% row.each_with_index do |cell, j| %>
+          <td data-cell="<%= %Q(#{i} #{j}) %>"></td>
+        <% end %>
+      </tr>
+    <% end %>
+  <table>
+</div>
+
 <div id="info-block">
   <div id="evolution-step">
     Шаг эволюции:
@@ -16,6 +27,10 @@
   </div>
   <div id="colony-number">
     Номер колонии в текущей популяции:
+    <span class="content">0</span>
+  </div>
+  <div id="time-moment">
+    Цикл жизни колонии:
     <span class="content">0</span>
   </div>
 </div>
