@@ -51,12 +51,17 @@ class ColonyCell < Cell
   
   def kill
     @alive = false
-    self.clear_genome
+    clear_genome
     self
   end
   
   def survival_range
     (@a..@b)
+  end
+  
+  def rand_survival
+    @a, @b = ColonyCell.rand_survival
+    self
   end
   
   def life_position
@@ -70,6 +75,10 @@ class ColonyCell < Cell
   
   def genome
     { survival: [@a, @b] }
+  end
+  
+  def self.rand_survival
+    [rand(RANGE_OF_SURVIVAL), rand(RANGE_OF_SURVIVAL)].sort
   end
   
   def self.allowable_range_of_fertility

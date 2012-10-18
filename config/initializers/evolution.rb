@@ -22,24 +22,25 @@ class Evolution
     self
   end
   
-  def get_person_for_population(step, population_number)
-    main_colony = get_main_colony_for_evolution_step step, population_number
+  def get_person_for_population(step, colony_number)
+    colony = get_colony_for_evolution_step(step, colony_number).clone
     all_colonies = @other_colonies.clone
-    all_colonies.push({ colony: main_colony, top: @main_top, left: @main_left })
+    all_colonies.push({ colony: colony, top: @main_top, left: @main_left })
     field = Field.new "Evolution Field", @field_rows, @field_cols,
                                          colonies: all_colonies
     field_clone = field.clone
     life_cycles = field_clone.get_life cycles_number: @life_cycles_number
-    main_colony_after = Colony.new "Creature", cells: life_cycles.last
-    task_points = calculate_task_points_for main_colony, main_colony_after
-    { colony: main_colony, life_cycles: life_cycles, task_points: task_points }
+    colony_after = Colony.new "Creature", cells: life_cycles.last
+    task_points = calculate_task_points_for colony, colony_after
+    { colony: colony.clone, life_cycles: life_cycles }.merge(task_points)
   end
   
   def evolution_step(step)
     population = []
-    @population_size.times do |population_number|
-      population.push(get_person_for_population(step, population_number))
+    @population_size.times do |colony_number|
+      population.push(get_person_for_population(step, colony_number))
     end
+    @main_colony = get_best_colony_by(population).clone
     population.map { |person| person }
   end
   
@@ -62,7 +63,7 @@ class Evolution
       id if alive_cells_before.map(&:id).include?(id)
     }.compact.sort
     
-    { points: points.round(2), cells: significant_cells }
+    { task_points: points.round(2), ids: significant_cells }
   end
   
   def calculate_task_points_for(colony_before, colony_after)
@@ -72,18 +73,25 @@ class Evolution
     end
   end
   
-  def mutate_main_colony
-    Colony.new("Creature")
+  def get_best_colony_by(population)
+    best_population = population.max_by{ |person| person[:task_points] }
+    best_colony = best_population[:colony].clone
+    best_colony.truncate_by best_population[:ids]
   end
   
-  def get_main_colony_for_evolution_step(step, population_number)
-    if population_number == 1
+  def mutate_main_colony
+    mutant = @main_colony.clone
+    mutant.mutate *[1, 0].shuffle
+  end
+  
+  def get_colony_for_evolution_step(step, colony_number)
+    if colony_number == 0
       @main_colony || Colony.new("Creature")
     else
-      if step == 1 && !@main_colony
+      if step == 0 && !@main_colony
         Colony.new("Creature")
       else
-        mutate_main_colony
+        mutate_main_colony.clone
       end
     end
   end

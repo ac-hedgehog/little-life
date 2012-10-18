@@ -33,8 +33,8 @@ draw_population = () ->
             draw_table "colony-#{colony_num}-table", person['colony']['cells']
             $("#{colony_block} .colony-name").text(person['colony']['name'])
             $("#{colony_block} .colony-number").text(parseInt(colony_num) + 1)
-            $("#{colony_block} .task-points").text(person['task_points']['points'])
-            $("#{colony_block} .task-parents").text(person['task_points']['cells'])
+            $("#{colony_block} .task-points").text(person['task_points'])
+            $("#{colony_block} .task-parents").text(person['ids'])
 
 clear_population = () ->
     $("#population-container table td").css "background-color", "white"

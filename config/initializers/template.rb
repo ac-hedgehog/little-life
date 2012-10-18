@@ -24,7 +24,11 @@ class Template
   end
   
   def alive_cells
-    @cells.map { |row| row.map { |cell| cell if cell.alive? }.compact }.flatten
+    @cells.map { |row| row.map { |cell| cell.clone if cell.alive? }.compact }.flatten
+  end
+  
+  def dead_cells
+    @cells.map { |row| row.map { |cell| cell.clone if cell.dead? }.compact }.flatten
   end
   
   private
@@ -56,6 +60,8 @@ class Colony < Template
   attr_accessor :probabilities
   
   DEFAULT_PROBABILITY = 0.3
+  GENOTYPE_MUTATION_LEVELS = (0..10)
+  CELLS_MUTATION_LEVELS = (0..10)
   
   def initialize(name, args = { })
     set_name name
@@ -73,6 +79,32 @@ class Colony < Template
     }.join("\n#{'—' * @cols * 3}\n")
   end
   
+  def clone
+    Colony.new @name.clone, rows: @rows, cols: @cols,
+               cells: @cells.map { |row| row.map { |cell| cell.clone } }
+  end
+  
+  def truncate_by(ids = [])
+    @cells.each do |row|
+      row.each { |cell| cell.kill if cell.alive? && !ids.include?(cell.id) }
+    end
+    self.clone
+  end
+  
+  def mutate(logm = GENOTYPE_MUTATION_LEVELS.first, locm = CELLS_MUTATION_LEVELS.first)
+    logm.times do
+      id = self.alive_cells.sample.id
+      @cells[id / @cols][id % @cols].rand_survival
+    end
+    locm.times do
+      id = self.dead_cells.sample.id
+      a, b = ColonyCell.rand_survival
+      new_cell = ColonyCell.new name: @name, id: id, alive: true, a: a, b: b
+      @cells[id / @cols][id % @cols] = new_cell
+    end
+    self.clone
+  end
+  
   private
   
   def set_size(rows, cols)
@@ -82,8 +114,7 @@ class Colony < Template
   
   def set_cell(i, j)
     alive = Random.rand(1.0) < @probabilities[i][j] ? true : false
-    a = alive ? rand(ColonyCell::RANGE_OF_SURVIVAL) : nil
-    b = alive ? rand(a..ColonyCell::RANGE_OF_SURVIVAL.max) : nil
+    a, b = alive ? ColonyCell.rand_survival : nil
     ColonyCell.new name: @name, id: i * @cols + j, alive: alive, a: a, b: b
   end
   
