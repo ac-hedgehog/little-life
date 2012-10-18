@@ -9,7 +9,7 @@
 </div>
 
 <div id="table-block">
-  <table id="field-table">
+  <table id="field-table" class="field">
     <% @field.cells.each_with_index do |row, i| %>
       <tr>
         <% row.each_with_index do |cell, j| %>
@@ -17,7 +17,7 @@
         <% end %>
       </tr>
     <% end %>
-  <table>
+  </table>
 </div>
 
 <div id="info-block">
@@ -32,5 +32,19 @@
   <div id="time-moment">
     Цикл жизни колонии:
     <span class="content">0</span>
+  </div>
+  <div id="population-container">
+    <div>Популяция:</div>
+    <% 5.times do |n| %>
+      <table id="colony-<%= n %>-table" class="field">
+        <% @colony.cells.each_with_index do |row, i| %>
+          <tr>
+            <% row.each_with_index do |cell, j| %>
+              <td data-cell="<%= %Q(#{i} #{j}) %>"></td>
+            <% end %>
+          </tr>
+        <% end %>
+      </table>
+    <% end %>
   </div>
 </div>

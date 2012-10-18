@@ -3,6 +3,7 @@ class PagesController < ApplicationController
   end
 
   def test
+    @colony = Colony.new "Creature"
     @field = Field.new "Test Field", 10, 10
   end
   

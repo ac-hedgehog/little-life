@@ -1,9 +1,14 @@
-table#field-table {
+table.field {
   border: 2px solid black;
   margin: 10px;
 }
 
-table#field-table td {
+#population-container table {
+  border: 1px solid gray;
+  float: left;
+}
+
+table.field td {
   width: 8px;
   height: 8px;
   text-align: center;

@@ -14,19 +14,30 @@ generage_color_for = (cell) ->
     b = Number(32 * (cell.b - cell.a + 2) - 1).toString(16)
     "##{r}#{g}#{b}"
 
-draw_field_cell = (cell, i, j) ->
+draw_field_cell = (table, cell, i, j) ->
     if cell.alive == true
         color = generage_color_for cell
-        $("#field-table td[data-cell='#{i} #{j}']").css "background-color", color
+        $("##{table} td[data-cell='#{i} #{j}']").css "background-color", color
     if cell.checkpoint == 'finish'
-        $("#field-table td[data-cell='#{i} #{j}']").css "background-color", "yellow"
+        $("##{table} td[data-cell='#{i} #{j}']").css "background-color", "yellow"
 
-draw_field_table = () ->
-    life_cycle = $.evolution[$.step][$.colony_num][$.t]
-    $("#field-table td").css "background-color", "white"
-    for i of life_cycle
-        for j of life_cycle[i]
-            draw_field_cell life_cycle[i][j], i, j
+draw_life_cycle = () ->
+    draw_table "field-table", $.evolution[$.step][$.colony_num]['life_cycles'][$.t]
+
+draw_population = () ->
+    if $.evolution[$.step]
+        for colony_num of $.evolution[$.step]
+            cells = $.evolution[$.step][colony_num]['colony']['cells']
+            draw_table "colony-#{colony_num}-table", cells
+
+clear_population = () ->
+    $("#population-container table td").css "background-color", "white"
+
+draw_table = (table, cells) ->
+    $("##{table} td").css "background-color", "white"
+    for i of cells
+        for j of cells[i]
+            draw_field_cell table, cells[i][j], i, j
 
 get_new_evolution = () ->
     $.ajax
@@ -39,8 +50,8 @@ get_new_evolution = () ->
             stop_evolution()
 
 play_population_life = () ->
-    if $.evolution[$.step][$.colony_num][$.t]
-        draw_field_table()
+    if $.evolution[$.step][$.colony_num]['life_cycles'][$.t]
+        draw_life_cycle()
         fill_info_block(false)
         $.t += 1
         $.timeout = setTimeout(play_population_life, 300)
@@ -55,10 +66,12 @@ play_evolution_step = () ->
     else
         $.colony_num = 0
         $.step += 1
+        clear_population()
         play_evolution()
 
 play_evolution = () ->
     if $.evolution && $.evolution[$.step]
+        draw_population()
         play_evolution_step()
     else
         stop_evolution()
@@ -70,7 +83,8 @@ stop_evolution = () ->
     $.step = 0
     $.colony_num = 0
     $.t = 0
-    draw_field_table()
+    draw_life_cycle()
+    clear_population()
     clearTimeout($.timeout)
     fill_info_block(true)
 
