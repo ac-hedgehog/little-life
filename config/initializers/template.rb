@@ -23,6 +23,10 @@ class Template
     }.join("\n")
   end
   
+  def alive_cells
+    @cells.map { |row| row.map { |cell| cell if cell.alive? }.compact }.flatten
+  end
+  
   private
   
   def set_cell(i, j)
@@ -57,7 +61,7 @@ class Colony < Template
     set_name name
     set_size args[:rows], args[:cols]
     set_probabilities args[:probabilities]
-    set_cells
+    @cells = args[:cells] ? args[:cells] : set_cells
     self
   end
   
@@ -84,7 +88,7 @@ class Colony < Template
   end
   
   def set_cells
-    @cells = Array.new(@rows).each_with_index.map { |row, i|
+    Array.new(@rows).each_with_index.map { |row, i|
       Array.new(@cols).each_with_index.map { |cell, j|
         set_cell(i, j)
       }
