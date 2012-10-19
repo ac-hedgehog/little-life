@@ -1,0 +1,34 @@
+<div id="evolution-form-block" class="block">
+  <button id="get-new-evolution">ЭВОЛЮЦИОНИРОВАТЬ</button>
+</div>
+
+<div id="life-player-block" class="block">
+  <div id="life-table" class="table-wrapper">
+    <%= render 'table', table: @field %>
+  </div>
+  <div id="life-cycle">0</div>
+  <button id="play-evolution">▶</button>
+  <button id="pause-evolution">▮▮</button>
+  <button id="stop-evolution">■</button>
+</div>
+
+<div id="evolution-block" class="block">
+  <h1>Эволюция:</h1>
+  <% @evolution_steps.times do |step| %>
+    <div id="evolution-<%= step %>-step" class="population-block block">
+      <h3>Популяция <%= step %> шага эволюции:</h3>
+      <% @population_size.times do |colony_number| %>
+        <div id="colony-<%= colony_number %>-block" class="colony-block">
+          <b>Колония №<%= colony_number %></b>
+          <div class="table-wrapper"
+               data-step="<%= step %>"
+               data-colony_number="<%= colony_number %>">
+            <%= render 'table', table: @colony %>
+          </div>
+          <div>Набрано очков: <span class="task-points"></span></div>
+          <div>Повлиявшие клетки: <span class="task-parents"></span></div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>

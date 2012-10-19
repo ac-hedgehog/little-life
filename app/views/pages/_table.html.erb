@@ -1,0 +1,9 @@
+<table>
+  <% table.rows.times do |i| %>
+    <tr>
+      <% table.cols.times do |j| %>
+        <td data-cell="<%= %Q(#{i} #{j}) %>"></td>
+      <% end %>
+    </tr>
+  <% end %>
+</table>

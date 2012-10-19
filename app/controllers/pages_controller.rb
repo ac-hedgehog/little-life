@@ -1,10 +1,9 @@
 class PagesController < ApplicationController
-  def home
-  end
-
-  def test
+  def index
     @colony = Colony.new "Creature"
     @field = Field.new "Test Field", 10, 10
+    @population_size = 5
+    @evolution_steps = 3
   end
   
   def new_life

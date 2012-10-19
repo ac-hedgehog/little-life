@@ -1,25 +1,37 @@
-table#field-table {
-  border: 2px solid black;
-  margin: 50px;
+.block {
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
 }
 
-#population-container {
+#life-table table {
+  border: 2px solid black;
+  margin: 20px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#life-cycle {
+  margin-bottom: 20px;
+}
+
+.population-block {
   width: 100%;
 }
 
-#population-container table {
+.population-block .colony-block table {
   border: 1px solid gray;
   margin-left: auto;
   margin-right: auto;
 }
 
-#population-container .colony-block {
+.population-block .colony-block {
   float: left;
   width: 20%;
   text-align: center;
 }
 
-table.field td {
+.table-wrapper table td {
   width: 8px;
   height: 8px;
   text-align: center;

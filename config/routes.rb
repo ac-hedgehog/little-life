@@ -1,8 +1,8 @@
 LittleLife::Application.routes.draw do
   
-  get "pages/home"
-  get "pages/test"
-  post "pages/new_life"
+  resources :pages, :only => :index do
+    post :new_life, :on => :collection
+  end
 
   # The priority is based upon order of creation:
   # first created -> highest priority.
@@ -54,7 +54,7 @@ LittleLife::Application.routes.draw do
   # You can have the root of your site routed with "root"
   # just remember to delete public/index.html.
   # root :to => 'welcome#index'
-  root :to => 'pages#home'
+  root :to => 'pages#index'
 
   # See how all your routes lay out with "rake routes"
 
