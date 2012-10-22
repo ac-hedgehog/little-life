@@ -1,10 +1,8 @@
 class Cell
-  attr_accessor :name, :id, :parents, :alive
+  attr_accessor :name, :alive
   
   def initialize(args = { })
     @name = args[:name]
-    @id = args[:id] || 0
-    @parents = args[:parents] || []
     @alive = args[:alive] || false
     self
   end
@@ -44,13 +42,13 @@ class ColonyCell < Cell
   end
   
   def alive(a, b)
-    @alive = true
+    super
     self.survival = a, b
     self
   end
   
   def kill
-    @alive = false
+    super
     clear_genome
     self
   end

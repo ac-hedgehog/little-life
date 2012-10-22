@@ -34,7 +34,7 @@ class Template
   private
   
   def set_cell(i, j)
-    Cell.new name: @name, id: i * @cols + j
+    Cell.new name: @name
   end
   
   def set_cells
@@ -84,24 +84,11 @@ class Colony < Template
                cells: @cells.map { |row| row.map { |cell| cell.clone } }
   end
   
-  def truncate_by(ids = [])
-    @cells.each do |row|
-      row.each { |cell| cell.kill if cell.alive? && !ids.include?(cell.id) }
-    end
-    self.clone
-  end
-  
-  def mutate(logm = GENOTYPE_MUTATION_LEVELS.first, locm = CELLS_MUTATION_LEVELS.first)
-    logm.times do
-      id = self.alive_cells.sample.id
-      @cells[id / @cols][id % @cols].rand_survival
-    end
-    locm.times do
-      id = self.dead_cells.sample.id
-      a, b = ColonyCell.rand_survival
-      new_cell = ColonyCell.new name: @name, id: id, alive: true, a: a, b: b
-      @cells[id / @cols][id % @cols] = new_cell
-    end
+  def mutate(gml = GENOTYPE_MUTATION_LEVELS.first, cml = CELLS_MUTATION_LEVELS.first)
+    i = rand(@rows)
+    j = rand(@cols)
+    @cells[i][j] = ColonyCell.new({ name: @name, alive: true }) if @cells[i][j].dead?
+    @cells[i][j].rand_survival
     self.clone
   end
   
@@ -113,9 +100,9 @@ class Colony < Template
   end
   
   def set_cell(i, j)
-    alive = Random.rand(1.0) < @probability ? true : false
+    alive = Random.rand(1.0) < @probability
     a, b = alive ? ColonyCell.rand_survival : nil
-    ColonyCell.new name: @name, id: i * @cols + j, alive: alive, a: a, b: b
+    ColonyCell.new name: @name, alive: alive, a: a, b: b
   end
   
   def set_cells
@@ -174,16 +161,14 @@ class Field < Template
   
   def processing_of_dead_cell(i, j)
     neighbors = find_a_neighbors(i, j)
-    alive_neighbors = neighbors.map{ |n| n if n.alive? }.compact
+    alive_neighbors = neighbors.map{ |n| n.clone if n.alive? }.compact
     return @cells[i][j] if alive_neighbors.empty?
     misanthropy_level = alive_neighbors.map(&:misanthropy).sum
     if ColonyCell.allowable_range_of_fertility.include?(misanthropy_level)
       a = alive_neighbors.map(&:a).sum / alive_neighbors.map(&:a).size
       b = alive_neighbors.map(&:b).sum / alive_neighbors.map(&:b).size
       name = alive_neighbors.first.name
-      parents = alive_neighbors.map(&:id).push *(neighbors.map(&:parents).flatten).uniq
-      ColonyCell.new  name: name, id: i * @cols + j, parents: parents,
-                      alive: true, a: a, b: b
+      ColonyCell.new  name: name, alive: true, a: a, b: b
     else
       @cells[i][j]
     end
@@ -213,12 +198,11 @@ class Field < Template
   end
   
   def dead_cell(i, j)
-    FieldCell.new name: @name, id: i * @cols + j
+    FieldCell.new name: @name
   end
   
   def checkpoint_cell(i, j, checkpoint_type)
     FieldCell.new name: @name,
-                  id: i * @cols + j,
                   checkpoint: checkpoint_type
   end
   

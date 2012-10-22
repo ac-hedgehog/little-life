@@ -12,7 +12,7 @@ draw_field_cell = ($table_wrapper, cell, i, j) ->
         color = generage_color_for cell
     if cell.checkpoint == 'finish'
         color = "yellow"
-    $table_wrapper.find("table td[data-cell='#{i} #{j}']").css("background-color", color)
+    $table_wrapper.find("table td[data-i='#{i}'][data-j='#{j}']").css("background-color", color)
 
 draw_table = ($table_wrapper, cells) ->
     $table_wrapper.find('table td').css "background-color", "white"
@@ -32,7 +32,6 @@ draw_population = () ->
                 
                 draw_table $colony_block, person['colony']['cells']
                 $colony_block.find(".task-points").text(person['task_points'])
-                $colony_block.find(".task-parents").text(person['ids'])
 
 get_new_evolution = () ->
     $.ajax

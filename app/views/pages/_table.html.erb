@@ -2,7 +2,7 @@
   <% table.rows.times do |i| %>
     <tr>
       <% table.cols.times do |j| %>
-        <td data-cell="<%= %Q(#{i} #{j}) %>"></td>
+        <td data-i="<%= i %>" data-j="<%= j %>"></td>
       <% end %>
     </tr>
   <% end %>
