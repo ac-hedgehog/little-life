@@ -60,8 +60,7 @@ class Colony < Template
   attr_accessor :probability
   
   DEFAULT_PROBABILITY = 0.3
-  GENOTYPE_MUTATION_LEVELS = (0..10)
-  CELLS_MUTATION_LEVELS = (0..10)
+  MUTATION_LEVELS = (1..10)
   
   def initialize(name, args = { })
     set_name name
@@ -84,11 +83,13 @@ class Colony < Template
                cells: @cells.map { |row| row.map { |cell| cell.clone } }
   end
   
-  def mutate(gml = GENOTYPE_MUTATION_LEVELS.first, cml = CELLS_MUTATION_LEVELS.first)
-    i = rand(@rows)
-    j = rand(@cols)
-    @cells[i][j] = ColonyCell.new({ name: @name, alive: true }) if @cells[i][j].dead?
-    @cells[i][j].rand_survival
+  def mutate(mutation_level = MUTATION_LEVELS.first)
+    mutation_level.times do
+      i = rand(@rows)
+      j = rand(@cols)
+      @cells[i][j] = ColonyCell.new({ name: @name, alive: true }) if @cells[i][j].dead?
+      @cells[i][j].rand_survival
+    end
     self.clone
   end
   

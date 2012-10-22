@@ -3,6 +3,7 @@ class Evolution
   
   POPULATION_SIZE_RANGE = (5..20)
   EVOLUTION_STEPS_RANGE = (3..20)
+  MUTATION_LEVELS = (1..10)
   TASK_GOALS = [:maximizing]
   DEFAULT_TASK = { goal: TASK_GOALS.first }
   
@@ -16,6 +17,7 @@ class Evolution
     @population_size = args[:population_size] || POPULATION_SIZE_RANGE.min
     @life_cycles_number = args[:life_cycles_number] || LIFE_CYCLES_RANGE.min
     @evolution_steps = args[:evolution_steps] || EVOLUTION_STEPS_RANGE.min
+    @mutation_level = args[:mutation_level] || MUTATION_LEVELS.min
     
     @task = args[:task] || DEFAULT_TASK
     @task = DEFAULT_TASK unless TASK_GOALS.include?(@task[:goal])
@@ -75,7 +77,7 @@ class Evolution
   
   def mutate_main_colony
     mutant = @main_colony.clone
-    mutant.mutate *[1, 0].shuffle
+    mutant.mutate @mutation_level
   end
   
   def get_colony_for_evolution_step(step, colony_number)
