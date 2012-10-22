@@ -26,13 +26,21 @@ draw_life_cycle = () ->
 draw_population = () ->
     if $.evolution
         for step of $.evolution
+            max_points = 0
             for colony_num of $.evolution[step]
                 person = $.evolution[step][colony_num]
                 $colony_block = $("#evolution-#{step}-step #colony-#{colony_num}-block")
-                
                 draw_table $colony_block, person['colony']['cells']
-                $colony_block.find(".task-points").text(person['task_points'])
+                
+                task_points = parseInt(person['task_points'])
+                max_points = task_points if task_points > max_points
+                $colony_block.find(".task-points").text(task_points)
                 $colony_block.find(".task-ids").text(person['ids'])
+            # Выделяем поле "Набрано очков" у лучшей колонии текущей популяции
+            for colony_num of $.evolution[step]
+                if parseInt($.evolution[step][colony_num]['task_points']) == max_points
+                    $("#evolution-#{step}-step #colony-#{colony_num}-block")
+                        .find(".task-points").parent().css("color", "red")
 
 get_new_evolution = () ->
     $.ajax
@@ -42,6 +50,7 @@ get_new_evolution = () ->
         url: "pages/new_life"
         success: (evolution) ->
             $.evolution = evolution
+            $(".task-points").parent().css("color", "black")
             new_evolution()
 
 play_population_life = () ->

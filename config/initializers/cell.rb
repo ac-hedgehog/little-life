@@ -6,7 +6,7 @@ class Cell
     @alive = args[:alive] || false
     @id = args[:id] if @alive
     @parents = @alive && args[:parents] ? args[:parents] : []
-    @parents.push @id
+    @parents.push @id if @id
     self
   end
   

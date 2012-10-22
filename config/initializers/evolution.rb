@@ -14,10 +14,12 @@ class Evolution
     @main_top, @main_left = args[:main_top] || 0, args[:main_left] || 0
     @other_colonies = args[:other_colonies] || []
     
-    @population_size = args[:population_size] || POPULATION_SIZE_RANGE.min
     @life_cycles_number = args[:life_cycles_number] || LIFE_CYCLES_RANGE.min
+    @population_size = args[:population_size] || POPULATION_SIZE_RANGE.min
     @evolution_steps = args[:evolution_steps] || EVOLUTION_STEPS_RANGE.min
+    
     @mutation_level = args[:mutation_level] || MUTATION_LEVELS.min
+    @truncate_level = args[:truncate_level]
     
     @task = args[:task] || DEFAULT_TASK
     @task = DEFAULT_TASK unless TASK_GOALS.include?(@task[:goal])
@@ -77,9 +79,9 @@ class Evolution
   end
   
   def get_best_colony_by(population)
-    best_population = population.shuffle.max_by{ |person| person[:task_points] }
-    best_colony = best_population[:colony].clone
-    best_colony.truncate_by best_population[:ids]
+    best_person = population.shuffle.max_by{ |person| person[:task_points] }
+    best_colony = best_person[:colony].clone
+    best_colony.truncate_by best_person[:ids], @truncate_level
   end
   
   def mutate_main_colony

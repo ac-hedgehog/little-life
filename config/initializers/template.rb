@@ -94,10 +94,17 @@ class Colony < Template
     self.clone
   end
   
-  def truncate_by(ids = [])
+  def truncate_by(ids, truncate_level = nil)
+    truncate_level = truncate_level.nil? ? @rows * @cols : truncate_level.to_i
+    max_truncate = self.alive_cells.size
+    truncate_level = max_truncate - 1 unless truncate_level < max_truncate
     @rows.times do |i|
       @cols.times do |j|
-        @cells[i][j].kill unless ids.include? @cells[i][j].id
+        if @cells[i][j].alive? && !ids.include?(@cells[i][j].id)
+          @cells[i][j].kill
+          truncate_level -= 1
+        end
+        return self unless truncate_level > 0
       end
     end
     self
