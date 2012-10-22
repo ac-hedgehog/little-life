@@ -57,7 +57,7 @@ class Template
 end
 
 class Colony < Template
-  attr_accessor :probabilities
+  attr_accessor :probability
   
   DEFAULT_PROBABILITY = 0.3
   GENOTYPE_MUTATION_LEVELS = (0..10)
@@ -66,7 +66,7 @@ class Colony < Template
   def initialize(name, args = { })
     set_name name
     set_size args[:rows], args[:cols]
-    set_probabilities args[:probabilities]
+    @probability = args[:probability] || DEFAULT_PROBABILITY
     @cells = args[:cells] ? args[:cells] : set_cells
     self
   end
@@ -113,7 +113,7 @@ class Colony < Template
   end
   
   def set_cell(i, j)
-    alive = Random.rand(1.0) < @probabilities[i][j] ? true : false
+    alive = Random.rand(1.0) < @probability ? true : false
     a, b = alive ? ColonyCell.rand_survival : nil
     ColonyCell.new name: @name, id: i * @cols + j, alive: alive, a: a, b: b
   end
@@ -124,16 +124,6 @@ class Colony < Template
         set_cell(i, j)
       }
     }
-  end
-  
-  def set_probabilities(probabilities)
-    @probabilities = if probabilities.is_a?(Array)
-      probabilities.map! { |row| row.map! { |probability|
-        (0..1).include?(probability)? probability : DEFAULT_PROBABILITY
-      } }
-    else
-      Array.new(@rows).map! { Array.new(@cols).map! { DEFAULT_PROBABILITY } }
-    end
   end
 end
 

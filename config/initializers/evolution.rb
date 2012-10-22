@@ -74,7 +74,7 @@ class Evolution
   end
   
   def get_best_colony_by(population)
-    best_population = population.max_by{ |person| person[:task_points] }
+    best_population = population.shuffle.max_by{ |person| person[:task_points] }
     best_colony = best_population[:colony].clone
     best_colony.truncate_by best_population[:ids]
   end
