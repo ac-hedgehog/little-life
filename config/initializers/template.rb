@@ -88,8 +88,12 @@ class Colony < Template
       i = rand(@rows)
       j = rand(@cols)
       id = i * @cols + j
-      @cells[i][j] = ColonyCell.new({ name: @name, alive: true, id: id }) if @cells[i][j].dead?
-      @cells[i][j].rand_survival
+      if @cells[i][j].alive?
+        @cells[i][j].kill if rand(2) == 1
+      else
+        @cells[i][j] = ColonyCell.new name: @name, alive: true, id: id
+      end
+      @cells[i][j].rand_survival if @cells[i][j].alive?
     end
     self.clone
   end
