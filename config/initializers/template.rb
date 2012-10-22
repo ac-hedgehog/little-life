@@ -87,10 +87,20 @@ class Colony < Template
     mutation_level.times do
       i = rand(@rows)
       j = rand(@cols)
-      @cells[i][j] = ColonyCell.new({ name: @name, alive: true }) if @cells[i][j].dead?
+      id = i * @cols + j
+      @cells[i][j] = ColonyCell.new({ name: @name, alive: true, id: id }) if @cells[i][j].dead?
       @cells[i][j].rand_survival
     end
     self.clone
+  end
+  
+  def truncate_by(ids = [])
+    @rows.times do |i|
+      @cols.times do |j|
+        @cells[i][j].kill unless ids.include? @cells[i][j].id
+      end
+    end
+    self
   end
   
   private
@@ -103,7 +113,8 @@ class Colony < Template
   def set_cell(i, j)
     alive = Random.rand(1.0) < @probability
     a, b = alive ? ColonyCell.rand_survival : nil
-    ColonyCell.new name: @name, alive: alive, a: a, b: b
+    id = alive ? i * @cols + j : nil
+    ColonyCell.new name: @name, alive: alive, id: id, a: a, b: b
   end
   
   def set_cells
@@ -122,7 +133,7 @@ class Field < Template
   def initialize(name, rows = SIZE_RANGE.min, cols = SIZE_RANGE.min, args = { })
     set_name name
     @rows, @cols = rows, cols
-    set_cells args[:checkpoints]
+    set_cells args[:funguses]
     set_colonies args[:colonies]
     self
   end
@@ -169,7 +180,8 @@ class Field < Template
       a = alive_neighbors.map(&:a).sum / alive_neighbors.map(&:a).size
       b = alive_neighbors.map(&:b).sum / alive_neighbors.map(&:b).size
       name = alive_neighbors.first.name
-      ColonyCell.new  name: name, alive: true, a: a, b: b
+      parents = alive_neighbors.map(&:parents).flatten.uniq
+      ColonyCell.new name: name, alive: true, parents: parents, a: a, b: b
     else
       @cells[i][j]
     end
@@ -202,23 +214,22 @@ class Field < Template
     FieldCell.new name: @name
   end
   
-  def checkpoint_cell(i, j, checkpoint_type)
-    FieldCell.new name: @name,
-                  checkpoint: checkpoint_type
+  def fungus_cell(i, j)
+    FieldCell.new name: @name, fungus: true
   end
   
-  def set_checkpoints(checkpoints)
-    checkpoints.each do |checkpoint|
-      i, j = checkpoint[:coordinates].first, checkpoint[:coordinates].second
-      @cells[i][j] = checkpoint_cell(i, j, checkpoint[:type].to_sym)
+  def set_funguses(funguses)
+    funguses.each do |fungus|
+      i, j = fungus.first, fungus.second
+      @cells[i][j] = fungus_cell(i, j)
     end
   end
   
-  def set_cells(checkpoints = nil)
+  def set_cells(funguses = nil)
     @cells = Array.new(@rows).each_with_index.map { |row, i|
       Array.new(@cols).each_with_index.map { |cell, j| dead_cell(i, j) }
     }
-    set_checkpoints(checkpoints) if checkpoints
+    set_funguses(funguses) if funguses
   end
   
   def set_colony(colony, top, left)

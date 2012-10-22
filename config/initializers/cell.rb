@@ -1,9 +1,12 @@
 class Cell
-  attr_accessor :name, :alive
+  attr_accessor :name, :alive, :id, :parents
   
   def initialize(args = { })
     @name = args[:name]
     @alive = args[:alive] || false
+    @id = args[:id] if @alive
+    @parents = @alive && args[:parents] ? args[:parents] : []
+    @parents.push @id
     self
   end
   
@@ -14,6 +17,8 @@ class Cell
   
   def kill
     @alive = false
+    @id = nil
+    @parents = []
     self
   end
   
@@ -99,13 +104,11 @@ class ColonyCell < Cell
 end
 
 class FieldCell < ColonyCell
-  attr_accessor :checkpoint
-  
-  CHECKPOINT_TYPES = [:finish]
+  attr_accessor :fungus
   
   def initialize(args = { })
     super(args)
-    @checkpoint = args[:checkpoint] if CHECKPOINT_TYPES.include?(args[:checkpoint])
+    @fungus = args[:fungus] ? args[:fungus] : false
     self
   end
 end

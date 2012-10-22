@@ -32,6 +32,7 @@ draw_population = () ->
                 
                 draw_table $colony_block, person['colony']['cells']
                 $colony_block.find(".task-points").text(person['task_points'])
+                $colony_block.find(".task-ids").text(person['ids'])
 
 get_new_evolution = () ->
     $.ajax

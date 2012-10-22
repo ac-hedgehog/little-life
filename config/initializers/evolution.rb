@@ -34,7 +34,7 @@ class Evolution
     life_cycles = field_clone.get_life cycles_number: @life_cycles_number
     colony_after = Colony.new "Creature", cells: life_cycles.last
     task_points = calculate_task_points_for colony, colony_after
-    { colony: colony.clone, life_cycles: life_cycles, task_points: task_points }
+    { colony: colony.clone, life_cycles: life_cycles }.merge(task_points)
   end
   
   def evolution_step(step)
@@ -60,7 +60,13 @@ class Evolution
     alive_cells_before = colony_before.alive_cells
     alive_cells_after = colony_after.alive_cells
     points = alive_cells_after.count + colony_before.rows * colony_before.cols / alive_cells_before.count.to_f
-    points.round(2)
+    
+    all_parents = alive_cells_after.map(&:parents).flatten.uniq
+    ids = alive_cells_before.map { |a_c_b|
+      a_c_b.id if all_parents.include?(a_c_b.id)
+    }.compact.sort
+    
+    { task_points: points.round(2), ids: ids }
   end
   
   def calculate_task_points_for(colony_before, colony_after)
@@ -73,6 +79,7 @@ class Evolution
   def get_best_colony_by(population)
     best_population = population.shuffle.max_by{ |person| person[:task_points] }
     best_colony = best_population[:colony].clone
+    best_colony.truncate_by best_population[:ids]
   end
   
   def mutate_main_colony
