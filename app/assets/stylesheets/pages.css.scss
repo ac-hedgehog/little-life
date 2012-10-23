@@ -6,6 +6,17 @@
 
 #evolution-form-block {
   margin: 10px;
+  float: left;
+}
+
+#evolution-form-block input[type="submit"] {
+  width: 100%;
+}
+
+#life-player-block {
+  float: right;
+  width: 20%;
+  margin-right: 40%;
 }
 
 #life-table table {

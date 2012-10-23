@@ -1,3 +1,5 @@
+#= require jquery.form
+
 fill_info_block = () ->
     $("#life-cycle").text($.t)
 
@@ -41,17 +43,6 @@ draw_population = () ->
                 if parseInt($.evolution[step][colony_num]['task_points']) == max_points
                     $("#evolution-#{step}-step #colony-#{colony_num}-block")
                         .find(".task-points").parent().css("color", "red")
-
-get_new_evolution = () ->
-    $.ajax
-        type: "POST"
-        data:
-            position: [0, 0]
-        url: "pages/new_life"
-        success: (evolution) ->
-            $.evolution = evolution
-            $(".task-points").parent().css("color", "black")
-            new_evolution()
 
 play_population_life = () ->
     if $.evolution[$.step][$.colony_num]['life_cycles'][$.t]
@@ -113,7 +104,14 @@ choose_life_cycles = () ->
     $.t = 0
     draw_life_cycle()
 
-$("#get-new-evolution").live "click", get_new_evolution
+get_new_evolution_options =
+    url: "/pages/new_life"
+    success: (evolution) ->
+        $.evolution = evolution
+        $(".task-points").parent().css("color", "black")
+        new_evolution()
+
+$("#get-new-evolution").ajaxForm get_new_evolution_options
 $("#life-table table").live "click", choose_all_evolution
 $("#evolution-block .table-wrapper table").live "click", choose_life_cycles
 

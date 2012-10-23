@@ -1,0 +1,16 @@
+<%= form_for :evolution, html: { id: 'get-new-evolution' } do |f| %>
+  <div class="field">
+    <%= f.label :main_colony_name, "Имя колонии" %>
+    <%= f.text_field :main_colony_name, value: "Creature" %>
+  </div>
+  <div class="field">
+    <%= f.label :life_cycles_number, "Количество циклов жизни" %>
+    <%= f.text_field :life_cycles_number, value: 15 %>
+  </div>
+  <div class="field">
+    <%= f.label :mutation_level, "Уровень мутации" %>
+    <%= f.text_field :mutation_level, value: 2 %>
+  </div>
+  
+  <%= f.submit "ЭВОЛЮЦИОНИРОВАТЬ" %>
+<% end %>
