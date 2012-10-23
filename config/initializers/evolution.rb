@@ -84,7 +84,8 @@ class Evolution
   
   def mutate_main_colony(colony_number)
     mutant = @main_colony.clone
-    mutant.truncate_by @best_person[:ids] if colony_number >= @population_size / 2
+    second_part_number = @population_size / 2
+    mutant.truncate_by @best_person[:ids] if colony_number >= second_part_number
     case colony_number
     when 0, second_part_number
       mutant

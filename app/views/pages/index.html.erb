@@ -1,7 +1,3 @@
-<div id="evolution-form-block" class="block">
-  <button id="get-new-evolution">ЭВОЛЮЦИОНИРОВАТЬ</button>
-</div>
-
 <div id="life-player-block" class="block">
   <div id="life-table" class="table-wrapper">
     <%= render 'table', table: @field %>
@@ -10,6 +6,10 @@
   <button id="play-evolution">▶</button>
   <button id="pause-evolution">▮▮</button>
   <button id="stop-evolution">■</button>
+</div>
+
+<div id="evolution-form-block" class="block">
+  <button id="get-new-evolution">ЭВОЛЮЦИОНИРОВАТЬ</button>
 </div>
 
 <div id="evolution-block" class="block">
@@ -29,6 +29,7 @@
           <div>Существенные клетки: <span class="task-ids"></span></div>
         </div>
       <% end %>
+      <div class="clear"></div>
     </div>
   <% end %>
 </div>

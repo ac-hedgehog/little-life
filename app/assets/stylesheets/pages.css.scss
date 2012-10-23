@@ -4,6 +4,10 @@
   text-align: center;
 }
 
+#evolution-form-block {
+  margin: 10px;
+}
+
 #life-table table {
   border: 2px solid black;
   margin: 20px;
@@ -16,7 +20,8 @@
 }
 
 .population-block {
-  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .population-block .colony-block table {
@@ -29,6 +34,10 @@
   float: left;
   width: 20%;
   text-align: center;
+}
+
+.clear {
+  clear: both;
 }
 
 .table-wrapper table td {
