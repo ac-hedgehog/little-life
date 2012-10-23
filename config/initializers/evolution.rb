@@ -19,7 +19,6 @@ class Evolution
     @evolution_steps = args[:evolution_steps] || EVOLUTION_STEPS_RANGE.min
     
     @mutation_level = args[:mutation_level] || MUTATION_LEVELS.min
-    @truncate_level = args[:truncate_level]
     
     @task = args[:task] || DEFAULT_TASK
     @task = DEFAULT_TASK unless TASK_GOALS.include?(@task[:goal])
@@ -44,7 +43,8 @@ class Evolution
     @population_size.times do |colony_number|
       population.push(get_person_for_population(step, colony_number))
     end
-    @main_colony = get_best_colony_by(population).clone
+    create_best_person_by population
+    @main_colony = @best_person[:colony].clone
     population
   end
   
@@ -78,26 +78,26 @@ class Evolution
     end
   end
   
-  def get_best_colony_by(population)
-    best_person = population.shuffle.max_by{ |person| person[:task_points] }
-    best_colony = best_person[:colony].clone
-    best_colony.truncate_by best_person[:ids], @truncate_level
+  def create_best_person_by(population)
+    @best_person = population.shuffle.max_by{ |person| person[:task_points] }.clone
   end
   
-  def mutate_main_colony
+  def mutate_main_colony(colony_number)
     mutant = @main_colony.clone
-    mutant.mutate @mutation_level
+    mutant.truncate_by @best_person[:ids] if colony_number >= @population_size / 2
+    case colony_number
+    when 0, second_part_number
+      mutant
+    else
+      mutant.mutate @mutation_level
+    end
   end
   
   def get_colony_for_evolution_step(step, colony_number)
-    if colony_number == 0
-      @main_colony || Colony.new("Creature")
+    if step == 0 && @main_colony.nil?
+      Colony.new("Creature")
     else
-      if step == 0 && !@main_colony
-        Colony.new("Creature")
-      else
-        mutate_main_colony.clone
-      end
+      mutate_main_colony(colony_number).clone
     end
   end
 end
