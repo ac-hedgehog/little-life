@@ -1,7 +1,7 @@
 class PagesController < ApplicationController
   def index
-    @colony = Colony.new "Creature"
-    @field = Field.new "Test Field", 9, 9
+    @colony = Colony.new name: "Creature"
+    @field = Field.new name: "Test Field", rows: 9, cols: 9
     @evolution_steps = 5
     @population_size = 5
   end

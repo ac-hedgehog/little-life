@@ -1,6 +1,4 @@
 class Evolution
-  attr_accessor :main_colony, :population, :population_size
-  
   LIFE_CYCLES_RANGE = (10..100)
   POPULATION_SIZE_RANGE = (5..20)
   EVOLUTION_STEPS_RANGE = (3..20)
@@ -33,11 +31,12 @@ class Evolution
     colony = get_colony_for_evolution_step(step, colony_number).clone
     all_colonies = @other_colonies.clone
     all_colonies.push({ colony: colony, top: @main_top, left: @main_left })
-    field = Field.new "Evolution Field", @field_rows, @field_cols,
-                                         colonies: all_colonies
+    field = Field.new name: "Evolution Field",
+                      rows: @field_rows, cols: @field_cols
+    field.push_colonies all_colonies
     field_clone = field.clone
     life_cycles = field_clone.get_life life_cycles_number: @life_cycles_number
-    colony_after = Colony.new @main_colony_name, cells: life_cycles.last
+    colony_after = Colony.new name: @main_colony_name, cells: life_cycles.last
     task_points = calculate_task_points_for colony, colony_after
     { colony: colony.clone, life_cycles: life_cycles }.merge(task_points)
   end
@@ -100,7 +99,7 @@ class Evolution
   
   def get_colony_for_evolution_step(step, colony_number)
     if step == 0 && @main_colony.nil?
-      Colony.new @main_colony_name
+      Colony.new name: @main_colony_name
     else
       mutate_main_colony(colony_number).clone
     end

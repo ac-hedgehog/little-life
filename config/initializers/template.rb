@@ -1,5 +1,5 @@
 # coding: utf-8
-class Template
+class TemplateClass
   attr_accessor :name, :rows, :cols, :cells
   
   SIZE_RANGE = (5..50)
@@ -56,7 +56,7 @@ class Template
   end
 end
 
-class Colony < Template
+class ColonyClass < TemplateClass
   attr_accessor :probability
   
   DEFAULT_PROBABILITY = 0.3
@@ -137,7 +137,7 @@ class Colony < Template
   end
 end
 
-class Field < Template
+class FieldClass < TemplateClass
   
   LIFE_CYCLES_RANGE = (10..100)
   
