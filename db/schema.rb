@@ -14,12 +14,12 @@
 ActiveRecord::Schema.define(:version => 20121024073720) do
 
   create_table "colonies", :force => true do |t|
-    t.string   "name"
-    t.integer  "rows"
-    t.integer  "cols"
+    t.string   "name",       :default => "Field"
+    t.integer  "rows",       :default => 5
+    t.integer  "cols",       :default => 5
     t.text     "cells"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
+    t.datetime "created_at",                      :null => false
+    t.datetime "updated_at",                      :null => false
   end
 
   create_table "fields", :force => true do |t|
@@ -32,12 +32,12 @@ ActiveRecord::Schema.define(:version => 20121024073720) do
   end
 
   create_table "templates", :force => true do |t|
-    t.string   "name"
-    t.integer  "rows"
-    t.integer  "cols"
+    t.string   "name",       :default => "Field"
+    t.integer  "rows",       :default => 5
+    t.integer  "cols",       :default => 5
     t.text     "cells"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
+    t.datetime "created_at",                      :null => false
+    t.datetime "updated_at",                      :null => false
   end
 
 end
