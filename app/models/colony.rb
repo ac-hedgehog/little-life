@@ -13,11 +13,6 @@ class Colony < Template
     }.join("\n#{'—' * self.cols * 3}\n")
   end
   
-  def clone
-    Colony.new name: self.name.clone, rows: self.rows, cols: self.cols,
-               cells: self.cells.map{ |row| row.map { |cell| cell.clone } }
-  end
-  
   def mutate(mutation_level = MUTATION_LEVELS.first)
     mutation_level.times do
       i = rand(self.rows)

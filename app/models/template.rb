@@ -17,6 +17,11 @@ class Template < ActiveRecord::Base
     }.join("\n")
   end
   
+  def clone
+    self.class.new  name: self.name.clone, rows: self.rows, cols: self.cols,
+                    cells: self.cells.map{ |row| row.map { |cell| cell.clone } }
+  end
+  
   def alive_cells
     self.cells.map { |row| row.map { |cell| cell.clone if cell.alive? }.compact }.flatten
   end

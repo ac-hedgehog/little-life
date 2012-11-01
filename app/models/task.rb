@@ -1,6 +1,8 @@
 class Task < ActiveRecord::Base
   enum_attr :goal, %w(^maximizing)
   
+  has_many :evolutions
+  
   def calculate_points_for(colony_before, colony_after)
     case self.goal
     when :maximizing

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121101101425) do
+ActiveRecord::Schema.define(:version => 20121101110021) do
 
   create_table "colonies", :force => true do |t|
     t.string   "name",       :default => "Creature"
@@ -20,6 +20,22 @@ ActiveRecord::Schema.define(:version => 20121101101425) do
     t.text     "cells"
     t.datetime "created_at",                         :null => false
     t.datetime "updated_at",                         :null => false
+  end
+
+  create_table "evolutions", :force => true do |t|
+    t.string   "field_name",         :default => "Evolution Field"
+    t.integer  "field_rows"
+    t.integer  "field_cols"
+    t.string   "main_name",          :default => "Creature"
+    t.integer  "main_top",           :default => 0
+    t.integer  "main_left",          :default => 0
+    t.integer  "life_cycles_number"
+    t.integer  "population_size"
+    t.integer  "evolution_steps"
+    t.integer  "mutation_level"
+    t.integer  "task_id"
+    t.datetime "created_at",                                        :null => false
+    t.datetime "updated_at",                                        :null => false
   end
 
   create_table "fields", :force => true do |t|
