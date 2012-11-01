@@ -11,15 +11,15 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121024073720) do
+ActiveRecord::Schema.define(:version => 20121101101425) do
 
   create_table "colonies", :force => true do |t|
-    t.string   "name",       :default => "Field"
+    t.string   "name",       :default => "Creature"
     t.integer  "rows",       :default => 5
     t.integer  "cols",       :default => 5
     t.text     "cells"
-    t.datetime "created_at",                      :null => false
-    t.datetime "updated_at",                      :null => false
+    t.datetime "created_at",                         :null => false
+    t.datetime "updated_at",                         :null => false
   end
 
   create_table "fields", :force => true do |t|
@@ -31,13 +31,19 @@ ActiveRecord::Schema.define(:version => 20121024073720) do
     t.datetime "updated_at",                      :null => false
   end
 
+  create_table "tasks", :force => true do |t|
+    t.string   "goal"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
   create_table "templates", :force => true do |t|
-    t.string   "name",       :default => "Field"
+    t.string   "name",       :default => "Template"
     t.integer  "rows",       :default => 5
     t.integer  "cols",       :default => 5
     t.text     "cells"
-    t.datetime "created_at",                      :null => false
-    t.datetime "updated_at",                      :null => false
+    t.datetime "created_at",                         :null => false
+    t.datetime "updated_at",                         :null => false
   end
 
 end

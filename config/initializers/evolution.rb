@@ -3,8 +3,6 @@ class Evolution
   POPULATION_SIZE_RANGE = (5..20)
   EVOLUTION_STEPS_RANGE = (3..20)
   MUTATION_LEVELS = (1..10)
-  TASK_GOALS = [:maximizing]
-  DEFAULT_TASK = { goal: TASK_GOALS.first }
   
   def initialize(args = { })
     @field_rows, @field_cols = (args[:field_rows] || 15).to_i, (args[:field_cols] || 15).to_i
@@ -22,8 +20,7 @@ class Evolution
     
     @mutation_level = (args[:mutation_level] || MUTATION_LEVELS.min).to_i
     
-    @task = args[:task] || DEFAULT_TASK
-    @task = DEFAULT_TASK unless TASK_GOALS.include?(@task[:goal])
+    @task = Task.new(args[:task])
     self
   end
   
@@ -37,7 +34,7 @@ class Evolution
     field_clone = field.clone
     life_cycles = field_clone.get_life life_cycles_number: @life_cycles_number
     colony_after = Colony.new name: @main_colony_name, cells: life_cycles.last
-    task_points = calculate_task_points_for colony, colony_after
+    task_points = @task.calculate_points_for colony, colony_after
     { colony: colony.clone, life_cycles: life_cycles }.merge(task_points)
   end
   
@@ -60,26 +57,6 @@ class Evolution
   end
   
   private
-  
-  def maximizing_points_for(colony_before, colony_after)
-    alive_cells_before = colony_before.alive_cells
-    alive_cells_after = colony_after.alive_cells
-    points = alive_cells_after.count + colony_before.rows * colony_before.cols / alive_cells_before.count.to_f
-    
-    all_parents = alive_cells_after.map(&:parents).flatten.uniq
-    ids = alive_cells_before.map { |a_c_b|
-      a_c_b.id if all_parents.include?(a_c_b.id)
-    }.compact.sort
-    
-    { task_points: points.round(2), ids: ids }
-  end
-  
-  def calculate_task_points_for(colony_before, colony_after)
-    case @task[:goal]
-    when :maximizing
-      maximizing_points_for colony_before, colony_after
-    end
-  end
   
   def create_best_person_by(population)
     @best_person = population.shuffle.max_by{ |person| person[:task_points] }.clone
