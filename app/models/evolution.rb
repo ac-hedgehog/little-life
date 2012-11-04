@@ -6,7 +6,7 @@ class Evolution < ActiveRecord::Base
 
   FIELD_SIZE_RANGE = (7..25)
   LIFE_CYCLES_RANGE = (10..25)
-  POPULATION_SIZE_RANGE = (5..10)
+  POPULATION_SIZE_RANGE = (6..12)
   EVOLUTION_STEPS_RANGE = (3..9)
   MUTATION_LEVELS = (1..10)
 
@@ -52,13 +52,15 @@ class Evolution < ActiveRecord::Base
   
   def mutate_main_colony(colony_number)
     mutant = @main_colony.clone
-    second_part_number = self.population_size / 2
-    mutant.truncate_by @best_person[:ids] if colony_number >= second_part_number
+    part_size = self.population_size / 3
+    mutant.truncate_by @best_person[:ids] if colony_number >= part_size
     case colony_number
-    when 0, second_part_number
+    when 0, part_size
       mutant
-    else
+    when 1..part_size - 1, part_size + 1..part_size * 2 - 1
       mutant.mutate self.mutation_level
+    else
+      Colony.new name: self.main_name
     end
   end
   
