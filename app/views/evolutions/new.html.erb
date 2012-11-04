@@ -1,3 +1,5 @@
+<%= init_action_js @evolve %>
+
 <div id="evolution-form-block" class="block">
   <%= render 'form' %>
 </div>
@@ -14,14 +16,16 @@
 
 <div class="clear"></div>
 
-<div id="evolution-block" class="block">
-  <h1>Эволюция:</h1>
+<table id="evolution-block" class="block">
+  <caption>Эволюция</caption>
   <% @evolution.evolution_steps.times do |step| %>
-    <div id="evolution-<%= step %>-step" class="population-block block">
-      <h3>Популяция <%= step %> шага эволюции:</h3>
+    <th colspan="<%= @evolution.population_size %>">
+      Популяция <%= step %> шага эволюции:
+    </th>
+    <tr id="evolution-<%= step %>-step">
       <% @evolution.population_size.times do |colony_number| %>
-        <div id="colony-<%= colony_number %>-block" class="colony-block">
-          <b>Колония №<%= colony_number %></b>
+        <td id="colony-<%= colony_number %>-block" class="colony-block">
+          <div>Колония №<%= colony_number %></div>
           <div class="table-wrapper"
                data-step="<%= step %>"
                data-colony_number="<%= colony_number %>">
@@ -29,9 +33,8 @@
           </div>
           <div>Набрано очков: <span class="task-points"></span></div>
           <div>Существенные клетки: <span class="task-ids"></span></div>
-        </div>
+        </td>
       <% end %>
-      <div class="clear"></div>
-    </div>
+    </tr>
   <% end %>
-</div>
+</table>

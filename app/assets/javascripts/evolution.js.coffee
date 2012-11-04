@@ -1,4 +1,17 @@
 #= require jquery.form
+$.app = {}
+$.app.evolutions = {}
+$.app.evolutions.setup_new = (evolution) ->
+    $.evolution = evolution
+    new_evolution()
+    
+    $("#life-table table").live "click", choose_all_evolution
+    $("#evolution-block .table-wrapper table").live "click", choose_life_cycles
+
+    $("#play-evolution").live "click", play_evolution
+    $("#pause-evolution").live "click", pause_evolution
+    $("#stop-evolution").live "click", stop_evolution
+$.app.evolutions.setup_create = $.app.evolutions.setup_new
 
 fill_info_block = () ->
     $("#life-cycle").text($.t)
@@ -103,17 +116,3 @@ choose_life_cycles = () ->
     $.colony_num = $colony_data.colony_number
     $.t = 0
     draw_life_cycle()
-
-get_new_evolution_options =
-    success: (evolution) ->
-        $.evolution = evolution
-        $(".task-points").parent().css("color", "black")
-        new_evolution()
-
-$("#evolution-form-block form").ajaxForm get_new_evolution_options
-$("#life-table table").live "click", choose_all_evolution
-$("#evolution-block .table-wrapper table").live "click", choose_life_cycles
-
-$("#play-evolution").live "click", play_evolution
-$("#pause-evolution").live "click", pause_evolution
-$("#stop-evolution").live "click", stop_evolution

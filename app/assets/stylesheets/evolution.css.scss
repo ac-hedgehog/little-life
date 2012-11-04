@@ -5,18 +5,29 @@
 }
 
 #evolution-form-block {
-  margin: 10px;
   float: left;
+  width: 40%;
 }
 
-#evolution-form-block input[type="submit"] {
+#evolution-form-block .field {
   width: 100%;
 }
 
+#evolution-form-block input {
+  width: 50px;
+}
+
+#evolution-form-block #evolution_main_name {
+  width: 200px;
+}
+
+#evolution-form-block input[type="submit"] {
+  width: 250px;
+}
+
 #life-player-block {
-  float: right;
+  float: left;
   width: 20%;
-  margin-right: 40%;
 }
 
 #life-table table {
@@ -30,21 +41,10 @@
   margin-bottom: 20px;
 }
 
-.population-block {
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.population-block .colony-block table {
+.colony-block table {
   border: 1px solid gray;
   margin-left: auto;
   margin-right: auto;
-}
-
-.population-block .colony-block {
-  float: left;
-  width: 20%;
-  text-align: center;
 }
 
 .clear {
@@ -55,4 +55,17 @@
   width: 8px;
   height: 8px;
   text-align: center;
+}
+
+#evolution-block {
+  width: 100%;
+}
+
+#evolution-block caption {
+  font-size: 24pt;
+  font-weight: bold;
+}
+
+#evolution-block th {
+  font-size: 16pt;
 }

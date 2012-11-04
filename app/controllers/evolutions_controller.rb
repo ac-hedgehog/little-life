@@ -9,9 +9,8 @@ class EvolutionsController < ApplicationController
   end
   
   def create
-    evolution = Evolution.new(params[:evolution])
-    respond_to do |format|
-      format.json { render json: evolution.evolve }
-    end
+    @evolution = Evolution.new(params[:evolution])
+    @evolve = @evolution.evolve
+    render :new
   end
 end
