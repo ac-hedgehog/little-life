@@ -4,10 +4,10 @@ class Evolution < ActiveRecord::Base
                   :mutation_level, :population_size
   attr_accessor :main_colony, :field, :best_person
 
-  FIELD_SIZE_RANGE = (15..50)
-  LIFE_CYCLES_RANGE = (10..100)
-  POPULATION_SIZE_RANGE = (5..20)
-  EVOLUTION_STEPS_RANGE = (3..20)
+  FIELD_SIZE_RANGE = (7..25)
+  LIFE_CYCLES_RANGE = (10..25)
+  POPULATION_SIZE_RANGE = (5..10)
+  EVOLUTION_STEPS_RANGE = (3..9)
   MUTATION_LEVELS = (1..10)
 
   has_one :task
@@ -20,7 +20,7 @@ class Evolution < ActiveRecord::Base
     field_clone.push_colonies [{ colony: colony,
                                  top: self.main_top,
                                  left: self.main_left }]
-    life_cycles = field_clone.get_life life_cycles_number: self.life_cycles_number
+    life_cycles = field_clone.get_life self.life_cycles_number
     colony_after = Colony.new name: self.main_name, cells: life_cycles.last
     task_points = self.task.calculate_points_for colony, colony_after
     { colony: colony.clone, life_cycles: life_cycles }.merge(task_points)

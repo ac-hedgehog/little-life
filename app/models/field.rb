@@ -2,7 +2,7 @@
 class Field < Template
   has_and_belongs_to_many :colonies
   
-  LIFE_CYCLES_RANGE = (10..100)
+  LIFE_CYCLES_RANGE = (10..25)
   
   def push_colonies(colonies)
     return unless colonies
@@ -19,9 +19,7 @@ class Field < Template
   def get_life(life_cycles_number)
     life_cycles = [self.cells]
     lcn = life_cycles_number.in?(LIFE_CYCLES_RANGE)? life_cycles_number : LIFE_CYCLES_RANGE.min
-    lcn.times do
-      life_cycles.push next_life_cycle
-    end
+    lcn.times { life_cycles.push next_life_cycle }
     life_cycles
   end
   

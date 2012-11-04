@@ -1,20 +1,15 @@
 class EvolutionsController < ApplicationController
   def new
-    @colony = Colony.new name: "My creature"
-    @field = Field.new name: "Test Field", rows: 9, cols: 9
-    @evolution_steps = 5
-    @population_size = 5
+    @evolution = Evolution.new main_name: "My creature",
+                               field_rows: 9, field_cols: 9,
+                               main_top: 2, main_left: 2,
+                               evolution_steps: 5,
+                               mutation_level: 2
+    @evolve = @evolution.evolve
   end
   
   def create
-    evolution_params = { main_name: "My creature",
-                         field_rows: 9, field_cols: 9,
-                         main_top: 2, main_left: 2,
-                         evolution_steps: 5,
-                         population_size: 5,
-                         life_cycles_number: 15,
-                         mutation_level: 2 }.merge(params[:evolution].symbolize_keys)
-    evolution = Evolution.new(evolution_params)
+    evolution = Evolution.new(params[:evolution])
     respond_to do |format|
       format.json { render json: evolution.evolve }
     end

@@ -1,15 +1,45 @@
-<%= form_for :evolution, url: evolutions_path do |f| %>
+<%= form_for @evolution do |f| %>
+  <div class="size-of-field">
+    <div>Размеры поля</div>
+    <div class="field">
+      <%= f.label :field_rows, "Клеток по вертикали" %>
+      <%= f.text_field :field_rows, placeholder: Evolution::FIELD_SIZE_RANGE %>
+    </div>
+    <div class="field">
+      <%= f.label :field_cols, "Клеток по горизонтали" %>
+      <%= f.text_field :field_cols, placeholder: Evolution::FIELD_SIZE_RANGE %>
+    </div>
+  </div>
   <div class="field">
     <%= f.label :main_name, "Имя колонии" %>
-    <%= f.text_field :main_name, value: "My creature" %>
+    <%= f.text_field :main_name, placeholder: "[A..z]" %>
+  </div>
+  <div class="location-of-colony">
+    <div>Сдвиг колонии относительно верхнего левого угла поля</div>
+    <div class="field">
+      <%= f.label :main_top, "Сдвиг по вертикали" %>
+      <%= f.text_field :main_top, placeholder: "0..#{@evolution.field.rows - 6}" %>
+    </div>
+    <div class="field">
+      <%= f.label :main_left, "Сдвиг по горизонтали" %>
+      <%= f.text_field :main_left, placeholder: "0..#{@evolution.field.cols - 6}" %>
+    </div>
   </div>
   <div class="field">
     <%= f.label :life_cycles_number, "Количество циклов жизни" %>
-    <%= f.text_field :life_cycles_number, value: 15 %>
+    <%= f.text_field :life_cycles_number, placeholder: Evolution::LIFE_CYCLES_RANGE %>
+  </div>
+  <div class="field">
+    <%= f.label :population_size, "Размер популяции" %>
+    <%= f.text_field :population_size, placeholder: Evolution::POPULATION_SIZE_RANGE %>
+  </div>
+  <div class="field">
+    <%= f.label :evolution_steps, "Количество шагов эволюции" %>
+    <%= f.text_field :evolution_steps, placeholder: Evolution::EVOLUTION_STEPS_RANGE %>
   </div>
   <div class="field">
     <%= f.label :mutation_level, "Уровень мутации" %>
-    <%= f.text_field :mutation_level, value: 2 %>
+    <%= f.text_field :mutation_level, placeholder: Evolution::MUTATION_LEVELS %>
   </div>
   
   <%= f.submit "ЭВОЛЮЦИОНИРОВАТЬ" %>
