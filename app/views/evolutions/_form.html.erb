@@ -1,4 +1,4 @@
-<%= form_for :evolution, html: { id: 'get-new-evolution' } do |f| %>
+<%= form_for :evolution, url: evolutions_path do |f| %>
   <div class="field">
     <%= f.label :main_name, "Имя колонии" %>
     <%= f.text_field :main_name, value: "My creature" %>

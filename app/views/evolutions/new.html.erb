@@ -1,10 +1,10 @@
 <div id="evolution-form-block" class="block">
-  <%= render 'evolution_form' %>
+  <%= render 'form' %>
 </div>
 
 <div id="life-player-block" class="block">
   <div id="life-table" class="table-wrapper">
-    <%= render 'table', table: @field %>
+    <%= render 'shared/table', table: @field %>
   </div>
   <div id="life-cycle">0</div>
   <button id="play-evolution">▶</button>
@@ -25,7 +25,7 @@
           <div class="table-wrapper"
                data-step="<%= step %>"
                data-colony_number="<%= colony_number %>">
-            <%= render 'table', table: @colony %>
+            <%= render 'shared/table', table: @colony %>
           </div>
           <div>Набрано очков: <span class="task-points"></span></div>
           <div>Существенные клетки: <span class="task-ids"></span></div>

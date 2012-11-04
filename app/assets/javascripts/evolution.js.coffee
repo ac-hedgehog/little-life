@@ -105,13 +105,12 @@ choose_life_cycles = () ->
     draw_life_cycle()
 
 get_new_evolution_options =
-    url: "/pages/new_life"
     success: (evolution) ->
         $.evolution = evolution
         $(".task-points").parent().css("color", "black")
         new_evolution()
 
-$("#get-new-evolution").ajaxForm get_new_evolution_options
+$("#evolution-form-block form").ajaxForm get_new_evolution_options
 $("#life-table table").live "click", choose_all_evolution
 $("#evolution-block .table-wrapper table").live "click", choose_life_cycles
 
