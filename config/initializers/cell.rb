@@ -104,11 +104,4 @@ class ColonyCell < Cell
 end
 
 class FieldCell < ColonyCell
-  attr_accessor :fungus
-  
-  def initialize(args = { })
-    super(args)
-    @fungus = args[:fungus] ? args[:fungus] : false
-    self
-  end
 end

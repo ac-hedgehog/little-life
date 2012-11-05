@@ -1,4 +1,4 @@
-<%= init_action_js @evolve %>
+<%= init_action_js Evolution.evolve_to_hash(@evolve) %>
 
 <div id="evolution-form-block" class="block">
   <%= render 'form' %>
@@ -9,9 +9,12 @@
     <%= render 'shared/table', table: @evolution.field %>
   </div>
   <div id="life-cycle">0</div>
-  <button id="play-evolution">▶</button>
-  <button id="pause-evolution">▮▮</button>
-  <button id="stop-evolution">■</button>
+  <div id="life-player-panel">
+    <button id="play-evolution">▶</button>
+    <button id="pause-evolution">▮▮</button>
+    <button id="stop-evolution">■</button>
+  </div>
+  <div><button id="save-current-colony">Сохранить колонию</button></div>
 </div>
 
 <div class="clear"></div>

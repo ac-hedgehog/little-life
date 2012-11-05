@@ -46,6 +46,10 @@ class Colony < Template
   
   private
   
+  def create_cell(cell)
+    ColonyCell.new cell
+  end
+  
   def set_cell(i, j)
     alive = Random.rand(1.0) < PROBABILITY
     a, b = alive ? ColonyCell.rand_survival : nil
@@ -54,12 +58,16 @@ class Colony < Template
   end
   
   def set_cells
-    if self.cells.blank?
-      self.cells = Array.new(self.rows).each_with_index.map { |row, i|
-        Array.new(self.cols).each_with_index.map { |cell, j|
-          set_cell(i, j)
+    if @cells.blank?
+      if self.text_cells.blank?
+        @cells = Array.new(self.rows).each_with_index.map { |row, i|
+          Array.new(self.cols).each_with_index.map { |cell, j|
+            set_cell(i, j)
+          }
         }
-      }
+      else
+        text_to_cells
+      end
     end
   end
 end

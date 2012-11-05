@@ -21,7 +21,7 @@ class Evolution < ActiveRecord::Base
                                  top: self.main_top,
                                  left: self.main_left }]
     life_cycles = field_clone.get_life self.life_cycles_number
-    colony_after = Colony.new name: self.main_name, cells: life_cycles.last
+    colony_after = Colony.new name: self.main_name, text_cells: life_cycles.last
     task_points = self.task.calculate_points_for colony, colony_after
     { colony: colony.clone, life_cycles: life_cycles }.merge(task_points)
   end
@@ -44,6 +44,16 @@ class Evolution < ActiveRecord::Base
     evolution
   end
   
+  def self.evolve_to_hash(evolve)
+    evolve.map { |population| population.map { |person|
+      colony = person[:colony]
+      { colony: { name: colony.name, cells: colony.cells },
+        life_cycles: person[:life_cycles],
+        task_points: person[:task_points],
+        ids: person[:ids] }
+    } }
+  end
+  
   private
   
   def create_best_person_by(population)
@@ -53,7 +63,7 @@ class Evolution < ActiveRecord::Base
   def mutate_main_colony(colony_number)
     mutant = @main_colony.clone
     part_size = self.population_size / 3
-    mutant.truncate_by @best_person[:ids] if colony_number >= part_size
+    mutant.truncate_by @best_person[:ids] if colony_number >= part_size && @best_person
     case colony_number
     when 0, part_size
       mutant
@@ -82,7 +92,7 @@ class Evolution < ActiveRecord::Base
     
     self.mutation_level ||= MUTATION_LEVELS.min
     
-    @main_colony = nil
+    @main_colony = Colony.find_by_name(self.main_name)
     @field = Field.new name: self.field_name, rows: self.field_rows, cols: self.field_cols
     @field.push_colonies [] # not main colonies
     

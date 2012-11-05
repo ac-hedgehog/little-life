@@ -25,6 +25,10 @@ class Field < Template
   
   private
   
+  def create_cell(cell)
+    FieldCell.new cell
+  end
+  
   def find_a_neighbors(i, j)
     neighbors = [set_cell(i, j)] * 8
     neighbors[0] = self.cells[i - 1][j - 1] unless i == 0 || j == 0
@@ -75,7 +79,7 @@ class Field < Template
         end
       end
     end
-    self.cells = cells
+    @cells = cells
     self.cells
   end
   

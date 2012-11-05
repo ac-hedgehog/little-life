@@ -11,13 +11,13 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121101110021) do
+ActiveRecord::Schema.define(:version => 20121105104840) do
 
   create_table "colonies", :force => true do |t|
     t.string   "name",       :default => "Creature"
     t.integer  "rows",       :default => 5
     t.integer  "cols",       :default => 5
-    t.text     "cells"
+    t.text     "text_cells"
     t.datetime "created_at",                         :null => false
     t.datetime "updated_at",                         :null => false
   end
@@ -42,7 +42,7 @@ ActiveRecord::Schema.define(:version => 20121101110021) do
     t.string   "name",       :default => "Field"
     t.integer  "rows",       :default => 10
     t.integer  "cols",       :default => 10
-    t.text     "cells"
+    t.text     "text_cells"
     t.datetime "created_at",                      :null => false
     t.datetime "updated_at",                      :null => false
   end
@@ -57,7 +57,7 @@ ActiveRecord::Schema.define(:version => 20121101110021) do
     t.string   "name",       :default => "Template"
     t.integer  "rows",       :default => 5
     t.integer  "cols",       :default => 5
-    t.text     "cells"
+    t.text     "text_cells"
     t.datetime "created_at",                         :null => false
     t.datetime "updated_at",                         :null => false
   end

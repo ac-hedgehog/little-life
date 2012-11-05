@@ -11,6 +11,9 @@ $.app.evolutions.setup_new = (evolution) ->
     $("#play-evolution").live "click", play_evolution
     $("#pause-evolution").live "click", pause_evolution
     $("#stop-evolution").live "click", stop_evolution
+    
+    $("#save-current-colony").live "click", save_current_colony
+
 $.app.evolutions.setup_create = $.app.evolutions.setup_new
 
 fill_info_block = () ->
@@ -116,3 +119,20 @@ choose_life_cycles = () ->
     $.colony_num = $colony_data.colony_number
     $.t = 0
     draw_life_cycle()
+
+save_current_colony = () ->
+    colony = $.evolution[$.step][$.colony_num]['colony']
+    $.ajax
+        type: 'POST'
+        url:  'colonies'
+        data:
+            colony:
+                name: colony.name
+                rows: colony.rows
+                cols: colony.cols
+                cells: JSON.stringify(colony.cells)
+        success: (data) ->
+            if data.success
+                alert "Колония #{colony.name} была успешно сохранена!"
+            else
+                alert "Что-то пошло не так"

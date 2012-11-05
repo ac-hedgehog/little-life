@@ -3,7 +3,7 @@ module ApplicationHelper
     javascript_tag <<-JAVASCRIPT
         $(document).ready(function(){
             $.app.#{params[:controller]}.setup_#{params[:action]}(
-                #{args.map{|arg|"JSON.parse('#{arg.to_json}')"}.join(',')}
+                #{args.map{|arg|"JSON.parse('#{arg.to_json}')"}.join(",")}
             );
         });
     JAVASCRIPT

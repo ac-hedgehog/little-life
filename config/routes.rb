@@ -1,6 +1,8 @@
 LittleLife::Application.routes.draw do
   resources :evolutions, :only => [:new, :create]
   
+  resources :colonies, :only => :create
+  
   # The priority is based upon order of creation:
   # first created -> highest priority.
 
