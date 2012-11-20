@@ -1,5 +1,10 @@
+# encoding: utf-8
 class Task < ActiveRecord::Base
-  enum_attr :goal, %w(^maximizing)
+  attr_accessible :goal
+  enum_attr :goal, %w(^maximizing absorption) do
+    labels  maximizing: 'Рост',
+            absorption: 'Поглощение'
+  end
   
   has_many :evolutions
   
@@ -7,6 +12,8 @@ class Task < ActiveRecord::Base
     case self.goal
     when :maximizing
       maximizing_points_for colony_before, colony_after
+    when :absorption
+      { task_points: 0, ids: [] }
     end
   end
   

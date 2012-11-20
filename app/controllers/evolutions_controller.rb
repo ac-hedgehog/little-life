@@ -10,6 +10,7 @@ class EvolutionsController < ApplicationController
   
   def create
     @evolution = Evolution.new(params[:evolution])
+    @evolution.task = Task.where(params[:task]).first || Task.create!(params[:task])
     @evolve = @evolution.evolve
     render :new
   end

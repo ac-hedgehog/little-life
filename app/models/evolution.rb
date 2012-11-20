@@ -96,6 +96,6 @@ class Evolution < ActiveRecord::Base
     @field = Field.new name: self.field_name, rows: self.field_rows, cols: self.field_cols
     @field.push_colonies [] # not main colonies
     
-    self.task ||= Task.first
+    self.task ||= Task.first || Task.create!
   end
 end

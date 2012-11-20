@@ -29,6 +29,12 @@
     <%= f.label :mutation_level, "Уровень мутации" %>
     <%= f.text_field :mutation_level, placeholder: Evolution::MUTATION_LEVELS %>
   </div>
+  <%= fields_for @evolution.task do |task_form| %>
+    <div class="field">
+      <%= task_form.label :goal, "Задание" %>
+      <%= task_form.select :goal, Task.new.enums(:goal).select_options %>
+    </div>
+  <% end %>
   
   <%= f.submit "ЭВОЛЮЦИОНИРОВАТЬ" %>
 <% end %>
