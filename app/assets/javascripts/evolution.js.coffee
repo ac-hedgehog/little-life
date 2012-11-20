@@ -13,24 +13,35 @@ $.app.evolutions.setup_new = (evolution) ->
     $("#stop-evolution").live "click", stop_evolution
     
     $("#save-current-colony").live "click", save_current_colony
+    $("#palette input[type='radio']").live "click", change_palette
 
 $.app.evolutions.setup_create = $.app.evolutions.setup_new
 
 fill_info_block = () ->
     $("#life-cycle").text($.t)
 
-generage_color_for = (cell) ->
+generate_color_for = (cell) ->
     r = Number(287 - 32 * (cell.a + 1)).toString(16)
     g = Number(32 * (cell.b + 1) - 1).toString(16)
     b = Number(32 * (cell.b - cell.a + 2) - 1).toString(16)
     "##{r}#{g}#{b}"
 
+color_by_colony_for = (cell) ->
+    if $.evolution[$.step][$.colony_num].colony.name == cell.name
+        "blue"
+    else
+        "red"
+
 draw_field_cell = ($table_wrapper, cell, i, j) ->
     if cell.alive == true
-        color = generage_color_for cell
+        color = if $("#palette input[checked='checked']").val() == "by_cells"
+            generate_color_for cell
+        else
+            color_by_colony_for cell
     if cell.checkpoint == 'finish'
         color = "yellow"
-    $table_wrapper.find("table td[data-i='#{i}'][data-j='#{j}']").css("background-color", color)
+    cell_path = "table td[data-i='#{i}'][data-j='#{j}']"
+    $table_wrapper.find(cell_path).css("background-color", color)
 
 draw_table = ($table_wrapper, cells) ->
     $table_wrapper.find('table td').css "background-color", "white"
@@ -39,7 +50,7 @@ draw_table = ($table_wrapper, cells) ->
             draw_field_cell $table_wrapper, cells[i][j], i, j
 
 draw_life_cycle = () ->
-    draw_table $("#life-table"), $.evolution[$.step][$.colony_num]['life_cycles'][$.t]
+    draw_table $("#life-table"), $.evolution[$.step][$.colony_num].life_cycles[$.t]
 
 draw_population = () ->
     if $.evolution
@@ -48,20 +59,20 @@ draw_population = () ->
             for colony_num of $.evolution[step]
                 person = $.evolution[step][colony_num]
                 $colony_block = $("#evolution-#{step}-step #colony-#{colony_num}-block")
-                draw_table $colony_block, person['colony']['cells']
+                draw_table $colony_block, person.colony.cells
                 
-                task_points = parseInt(person['task_points'])
+                task_points = parseInt(person.task_points)
                 max_points = task_points if task_points > max_points
                 $colony_block.find(".task-points").text(task_points)
-                $colony_block.find(".task-ids").text(person['ids'])
+                $colony_block.find(".task-ids").text(person.ids)
             # Выделяем поле "Набрано очков" у лучшей колонии текущей популяции
             for colony_num of $.evolution[step]
-                if parseInt($.evolution[step][colony_num]['task_points']) == max_points
+                if parseInt($.evolution[step][colony_num].task_points) == max_points
                     $("#evolution-#{step}-step #colony-#{colony_num}-block")
                         .find(".task-points").parent().css("color", "red")
 
 play_population_life = () ->
-    if $.evolution[$.step][$.colony_num]['life_cycles'][$.t]
+    if $.evolution[$.step][$.colony_num].life_cycles[$.t]
         draw_life_cycle()
         fill_info_block(false)
         $.t += 1
@@ -121,7 +132,7 @@ choose_life_cycles = () ->
     draw_life_cycle()
 
 save_current_colony = () ->
-    colony = $.evolution[$.step][$.colony_num]['colony']
+    colony = $.evolution[$.step][$.colony_num].colony
     $.ajax
         type: 'POST'
         url:  'colonies'
@@ -136,3 +147,7 @@ save_current_colony = () ->
                 alert "Колония #{colony.name} была успешно сохранена!"
             else
                 alert "Что-то пошло не так"
+
+change_palette = () ->
+    $("#palette input[type='radio']").attr "checked", false
+    $(@).attr "checked", true

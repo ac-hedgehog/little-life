@@ -14,6 +14,17 @@
     <button id="pause-evolution">▮▮</button>
     <button id="stop-evolution">■</button>
   </div>
+  <div id="palette">
+    Разбиение цветов
+    <div>
+      <%= radio_button_tag :palette, :by_cells, true %>
+      <%= label_tag :palette, "По клеткам" %>
+    </div>
+    <div>
+      <%= radio_button_tag :palette, :by_colonies %>
+      <%= label_tag :palette, "По колониям" %>
+    </div>
+  </div>
   <div><button id="save-current-colony">Сохранить колонию</button></div>
 </div>
 

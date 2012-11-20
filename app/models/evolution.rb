@@ -38,6 +38,7 @@ class Evolution < ActiveRecord::Base
   
   def evolve
     evolution = []
+    set_enemy_colony if self.task.is_absorption?
     self.evolution_steps.times do |step|
       evolution.push(evolution_step(step))
     end
@@ -55,6 +56,13 @@ class Evolution < ActiveRecord::Base
   end
   
   private
+  
+  def set_enemy_colony
+    enemy = Colony.new name: "Enemy"
+    @field.push_colonies [{ colony: enemy,
+                            top: @field.rows - enemy.rows,
+                            left: @field.cols - enemy.cols }]
+  end
   
   def create_best_person_by(population)
     population.shuffle.max_by{ |person| person[:task_points] }.clone
