@@ -40,7 +40,7 @@ class Task < ActiveRecord::Base
     enemy_cells_after = field_after.alive_cells[Evolution::ENEMY_NAME] || []
     points = alive_cells_after.count.to_f / enemy_cells_after.count +
              enemy_cells_before.count.to_f / alive_cells_before.count +
-             1.0 / alive_cells_before.count
+             1.0 / alive_cells_before.count.to_f
     
     all_parents = alive_cells_after.map(&:parents).flatten.uniq
     ids = alive_cells_before.map { |a_c_b|

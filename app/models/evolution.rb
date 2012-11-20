@@ -64,7 +64,7 @@ class Evolution < ActiveRecord::Base
   private
   
   def set_enemy_colony
-    enemy = Colony.new name: ENEMY_NAME
+    enemy = Colony.where(name: ENEMY_NAME).first || Colony.new(name: ENEMY_NAME)
     @field.push_colonies [{ colony: enemy,
                             top: @field.rows - enemy.rows,
                             left: @field.cols - enemy.cols }]
