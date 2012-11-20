@@ -106,17 +106,39 @@ class Field < Template
   end
   
   def processing_of_alive_cell(i, j)
+    # Получаем ВСЕХ соседей клетки
     neighbors = find_a_neighbors(i, j)
+    # Выбираем живых соседей клетки
     alive_neighbors = neighbors.map{ |n| n.clone if n.alive? }.compact
     return set_cell(i, j) if alive_neighbors.empty?
+    # Разделяем живых соседей клетки по колониям, выделяем тех, в окружении
+    # которых клетка сможет выжить. Получаем хеш вида:
+    # ключ - имя колонии, значение - массив клеток этой колонии
     separated_neighbors = the_best_separated_neighbors_for(
       self.cells[i][j].clone, separate_neighbors(alive_neighbors)
     )
     return set_cell(i, j) if separated_neighbors.empty?
+    # Узнаём имя колонии, у которой наивысший по абсолютной величине показатель
+    # "жизненной позиции", т.е. максимально выраженное дружелюбие/агрессивность
     best_neighbor_name = whose_cell? separated_neighbors
+    # Если такая колония строго одна - получили её имя и тогда...
     if best_neighbor_name
       new_cell = self.cells[i][j].clone
-      new_cell.name = best_neighbor_name
+      # Если имя наиболее "удобной" для выживания колонии не совпадает с
+      # именем колонии, которой до сих пор принадлежала клетка (т.е. лучшая
+      # колония - "вражеская" колония), то...
+      unless new_cell.name == best_neighbor_name
+        lps = separated_neighbors[best_neighbor_name].map(&:life_position)
+        life_position = lps.sum / lps.size
+        # Если "жизненная позиция" вражеской колонии более агрессивна, чем у
+        # клетки, то клетка погибает, а если наоборот - клетка присоединяется
+        # к этой "вражеской" колонии
+        if life_position < new_cell.life_position
+          new_cell = set_cell(i, j)
+        else
+          new_cell.name = best_neighbor_name
+        end
+      end
       new_cell
     else
       set_cell(i, j)
