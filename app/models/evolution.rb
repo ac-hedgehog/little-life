@@ -3,7 +3,8 @@ class Evolution < ActiveRecord::Base
                   :life_cycles_number, :main_left, :main_name, :main_top,
                   :mutation_level, :population_size
   attr_accessor :main_colony, :field, :best_person
-
+  
+  ENEMY_NAME = "Budy Enemy"
   FIELD_SIZE_RANGE = (7..25)
   LIFE_CYCLES_RANGE = (10..25)
   POPULATION_SIZE_RANGE = (6..12)
@@ -21,8 +22,13 @@ class Evolution < ActiveRecord::Base
                                  top: self.main_top,
                                  left: self.main_left }]
     life_cycles = field_clone.get_life self.life_cycles_number
-    colony_after = Colony.new name: self.main_name, text_cells: life_cycles.last
-    task_points = self.task.calculate_points_for colony, colony_after
+    
+    field_before = Field.new name: "Field Before", text_cells: life_cycles.first
+    field_after = Field.new name: "Field After", text_cells: life_cycles.last
+    task_points = self.task.calculate_points_for colony.name,
+                                                 field_before,
+                                                 field_after
+    
     { colony: colony.clone, life_cycles: life_cycles }.merge(task_points)
   end
   
@@ -58,7 +64,7 @@ class Evolution < ActiveRecord::Base
   private
   
   def set_enemy_colony
-    enemy = Colony.new name: "Enemy"
+    enemy = Colony.new name: ENEMY_NAME
     @field.push_colonies [{ colony: enemy,
                             top: @field.rows - enemy.rows,
                             left: @field.cols - enemy.cols }]

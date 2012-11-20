@@ -23,6 +23,17 @@ class Field < Template
     life_cycles
   end
   
+  def alive_cells
+    alive_cells = {}
+    self.cells.map { |row| row.map { |cell|
+      if cell.alive?
+        alive_cells[cell.name] ||= []
+        alive_cells[cell.name].push cell.clone
+      end
+    } }
+    alive_cells
+  end
+  
   private
   
   def create_cell(cell)
