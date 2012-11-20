@@ -151,3 +151,5 @@ save_current_colony = () ->
 change_palette = () ->
     $("#palette input[type='radio']").attr "checked", false
     $(@).attr "checked", true
+    draw_life_cycle()
+    draw_population()
