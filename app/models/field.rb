@@ -42,26 +42,109 @@ class Field < Template
     neighbors
   end
   
+  def separate_neighbors(neighbors)
+    # Разделяем клетки по колониям, получаем из массива живых клеток хеш вида:
+    # ключ - имя колонии, значение - массив клеток этой колонии
+    neighbors.inject({}){ |separated_neighbors, neighbor|
+      separated_neighbors[neighbor.name] ||= []
+      separated_neighbors[neighbor.name].push neighbor
+      separated_neighbors
+    }
+  end
+  
+  def the_best_neighbors_among(neighbors)
+    # Из хеша клеток, разделённых по колониям, создаём хеш показателей
+    # мизантропии, вида: ключ - показатель мизантропии, значение - массив
+    # имён колоний, имеющих этот показатель мизантропии для своих клеток
+    misanthropy_levels = neighbors.inject({}){ |levels, colony_neighbors|
+      misanthropy_level = colony_neighbors.last.map(&:misanthropy).sum
+      levels[misanthropy_level] ||= []
+      levels[misanthropy_level].push colony_neighbors.first
+      levels
+    }
+    # Вычисляем наилучший показатель мизантропии из имеющихся
+    bml = misanthropy_levels.keys.first
+    misanthropy_levels.keys.each do |level|
+      bml = level if (level - ColonyCell.best_misanthropy_level).abs <
+                     (bml - ColonyCell.best_misanthropy_level).abs
+    end
+    # Если этот показатель в пределах допустимого и его имеет только одна
+    # колония - то её клетки и будут считаться наилучшими соседями
+    if ColonyCell.allowable_range_of_fertility.include?(bml) &&
+       misanthropy_levels[bml].count == 1
+      neighbors[misanthropy_levels[bml].first]
+    else
+      []
+    end
+  end
+  
+  def the_best_separated_neighbors_for(cell, neighbors)
+    neighbors.inject({}){ |bsn, colony_neighbors|
+      if (cell.survival_range).include?(colony_neighbors.last.count)
+        bsn[colony_neighbors.first] = colony_neighbors.last
+      end
+      bsn
+    }
+  end
+  
+  # Возвращает имя наиболее "крутой" с точки зрения "жизненной позиции"
+  # (по абсолютной величине) колонии, если такая одна, и nil если их несколько
+  def whose_cell?(neighbors)
+    return neighbors.keys.first if neighbors.size == 1
+    life_positions = neighbors.inject({}){ |positions, colony_neighbors|
+      lps = colony_neighbors.last.map(&:life_position)
+      life_position = lps.sum / lps.size
+      positions[life_position] ||= []
+      positions[life_position].push colony_neighbors.first
+      positions
+    }
+    blp = life_positions.keys.first
+    life_positions.keys.each do |position|
+      blp = position if position.abs > blp
+    end
+    life_positions[blp].count == 1 ? life_positions[blp].first : nil
+  end
+  
   def processing_of_alive_cell(i, j)
     neighbors = find_a_neighbors(i, j)
-    alive_neighbors_count = neighbors.map(&:alive?).count(true)
-    if (self.cells[i][j].survival_range).include?(alive_neighbors_count)
-      self.cells[i][j]
+    alive_neighbors = neighbors.map{ |n| n.clone if n.alive? }.compact
+    return set_cell(i, j) if alive_neighbors.empty?
+    separated_neighbors = the_best_separated_neighbors_for(
+      self.cells[i][j].clone, separate_neighbors(alive_neighbors)
+    )
+    return set_cell(i, j) if separated_neighbors.empty?
+    best_neighbor_name = whose_cell? separated_neighbors
+    if best_neighbor_name
+      new_cell = self.cells[i][j].clone
+      new_cell.name = best_neighbor_name
+      new_cell
     else
       set_cell(i, j)
     end
   end
   
   def processing_of_dead_cell(i, j)
+    # Получаем ВСЕХ соседей клетки
     neighbors = find_a_neighbors(i, j)
+    # Выбираем живых соседей клетки
     alive_neighbors = neighbors.map{ |n| n.clone if n.alive? }.compact
     return self.cells[i][j] if alive_neighbors.empty?
-    misanthropy_level = alive_neighbors.map(&:misanthropy).sum
-    if ColonyCell.allowable_range_of_fertility.include?(misanthropy_level)
-      a = alive_neighbors.map(&:a).sum / alive_neighbors.map(&:a).size
-      b = alive_neighbors.map(&:b).sum / alive_neighbors.map(&:b).size
-      name = alive_neighbors.first.name
-      parents = alive_neighbors.map(&:parents).flatten.uniq
+    # Разделяем живых соседей клетки по колониям, получаем хеш вида:
+    # { 'Имя колонии 1' => [<клетка-сосед-1>, <клетка-сосед-3>],
+    #   'Имя колонии 2' => [<клетка-сосед-2>] }
+    separated_neighbors = separate_neighbors alive_neighbors
+    # Находим "лучших соседей" для новой клетки, если они есть, т.е. из колоний
+    # кандидатов в качестве "родителя" выбирается та, у которой наилучший
+    # показатель мизантропии. Если он плох у всех или одинаково хорош у
+    # нескольких колоний, то пустая клетка пока так и останется мёртвой
+    best_neighbors = the_best_neighbors_among separated_neighbors
+    # Итак, если в итоге имеем массив из клеток одной колонии, подходящих по
+    # уровню мизантропии, то соответственно создаём новую клетку этой колонии
+    if best_neighbors.any?
+      a = best_neighbors.map(&:a).sum / best_neighbors.map(&:a).size
+      b = best_neighbors.map(&:b).sum / best_neighbors.map(&:b).size
+      name = best_neighbors.first.name
+      parents = best_neighbors.map(&:parents).flatten.uniq
       ColonyCell.new name: name, alive: true, parents: parents, a: a, b: b
     else
       self.cells[i][j]

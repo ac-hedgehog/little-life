@@ -84,8 +84,12 @@ class ColonyCell < Cell
     [rand(RANGE_OF_SURVIVAL), rand(RANGE_OF_SURVIVAL)].sort
   end
   
+  def self.best_misanthropy_level
+    RANGE_OF_SURVIVAL.max * 2 - 1
+  end
+  
   def self.allowable_range_of_fertility
-    max_mtp = RANGE_OF_SURVIVAL.max * 2 - 1
+    max_mtp = self.best_misanthropy_level
     mtp_variation = 1
     (max_mtp - mtp_variation..max_mtp + mtp_variation)
   end
